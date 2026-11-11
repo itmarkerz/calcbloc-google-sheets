@@ -2,6 +2,8 @@
 
 A Google Sheets add-on with custom functions for take-home pay, income tax, employer cost and individual tax rates, plus a sidebar that inserts a country's official tax tables into a sheet, each figure with its government source. It runs on [CalcBloc](https://calcbloc.com)'s sourced data and [public API](https://calcbloc.com/developers).
 
+CalcBloc is a product of [itmarkerz technologies](https://itmarkerz.co.in).
+
 > **Status:** ready for review, not published. Nothing has been submitted to the Google Workspace Marketplace. See [PUBLISHING_CHECKLIST.md](PUBLISHING_CHECKLIST.md).
 
 ```text
@@ -173,3 +175,7 @@ Tax data comes from [CalcBloc](https://calcbloc.com/data): every figure is taken
 - Website: [calcbloc.com](https://calcbloc.com)
 - Tax tables and downloads: [calcbloc.com/data](https://calcbloc.com/data)
 - API documentation and free keys: [calcbloc.com/developers](https://calcbloc.com/developers)
+
+## About
+
+[CalcBloc](https://calcbloc.com) is built and maintained by [itmarkerz technologies](https://itmarkerz.co.in), a web and mobile app development company in Kerala, India. The data behind this add-on is at [calcbloc.com/data](https://calcbloc.com/data) and the API documentation at [calcbloc.com/developers](https://calcbloc.com/developers). The other CalcBloc packages (Python, JavaScript, PHP, R, the MCP server and the dataset itself) are in the [itmarkerz GitHub organization](https://github.com/itmarkerz).
