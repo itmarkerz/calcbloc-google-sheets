@@ -1,8 +1,8 @@
 # CalcBloc for Google Sheets: tax tables and take-home pay functions
 
-A Google Sheets add-on with custom functions for take-home pay, income tax, employer cost and individual tax rates, plus a sidebar that inserts a country's official tax tables into a sheet, each figure with its government source. It runs on [CalcBloc](https://calcbloc.com)'s sourced data and [public API](https://calcbloc.com/developers).
+A Google Sheets add-on with custom functions for take-home pay, income tax, employer cost and individual tax rates, plus a sidebar that inserts a country's official tax tables into a sheet, each figure with its government source. It runs on [CalcBloc](https://calcbloc.com/?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss)'s sourced data and [public API](https://calcbloc.com/developers?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss).
 
-CalcBloc is a product of [itmarkerz technologies](https://itmarkerz.co.in).
+CalcBloc is a product of [itmarkerz technologies](https://itmarkerz.co.in/?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss).
 
 > **Status:** ready for review, not published. Nothing has been submitted to the Google Workspace Marketplace. See [PUBLISHING_CHECKLIST.md](PUBLISHING_CHECKLIST.md).
 
@@ -50,7 +50,7 @@ Every function is documented in the formula helper as you type. Rates come back 
 =CALCBLOC_BAND_TAX("norway", 500000)                                      -> 8,835.40 (trinnskatt)
 ```
 
-Section ids and row labels are the ones on each country's tax-table page, for example [calcbloc.com/norway/tax-tables/2026](https://calcbloc.com/norway/tax-tables/2026), and in the inserted table. A label can be shortened while it stays unique; `"#3"` picks the third row of a section, which is how unlabelled band rows are reached.
+Section ids and row labels are the ones on each country's tax-table page, for example [calcbloc.com/norway/tax-tables/2026](https://calcbloc.com/norway/tax-tables/2026?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss), and in the inserted table. A label can be shortened while it stays unique; `"#3"` picks the third row of a section, which is how unlabelled band rows are reached.
 
 ### What CALCBLOC_TAX includes
 
@@ -85,7 +85,7 @@ About half the countries (for example Norway, Austria, Poland and Switzerland) h
 
 **Extensions > CalcBloc > Settings and API key**:
 
-- **API key.** Without a key the CalcBloc API allows 50 requests a day and 5 a minute per internet address. Google runs every spreadsheet's requests from shared addresses, so that allowance is shared with other Apps Script users and can run out. A [free key](https://calcbloc.com/developers/keys) gives 5,000 requests a day and 60 a minute. The sidebar checks the key with calcbloc.com before saving it in your Google account's settings for this add-on (user properties). Only its last four characters are ever shown again.
+- **API key.** Without a key the CalcBloc API allows 50 requests a day and 5 a minute per internet address. Google runs every spreadsheet's requests from shared addresses, so that allowance is shared with other Apps Script users and can run out. A [free key](https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss) gives 5,000 requests a day and 60 a minute. The sidebar checks the key with calcbloc.com before saving it in your Google account's settings for this add-on (user properties). Only its last four characters are ever shown again.
 - **Share my key with this spreadsheet.** Custom functions run in a restricted mode in which Google only lets them read the spreadsheet owner's settings. If you edit a sheet someone else owns, tick this so the formulas can use your key; it is then stored with the spreadsheet (document properties), readable only by the add-on.
 - **Default country and region.** Saved with the spreadsheet, so every collaborator's formulas give the same results.
 - **Clear cached results.** Results are cached for up to 6 hours; this starts fresh.
@@ -125,7 +125,7 @@ npm run build && npx @google/clasp@3 push --force
 
 1. Open the spreadsheet (`npx @google/clasp@3 open-container`, or open it from Drive) and reload the page. A bound script shows its menu under **Extensions** with the project's name: **Extensions > CalcBloc review**.
 2. Click **Settings and API key**. The first click asks you to authorise the script; the prompt lists the three scopes in [appsscript.json](apps-script/appsscript.json). Formulas can call the API only after this step (until then they show a permission error).
-3. Paste a [free API key](https://calcbloc.com/developers/keys) and save. This avoids the shared anonymous limit.
+3. Paste a [free API key](https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss) and save. This avoids the shared anonymous limit.
 4. Try the formulas below in cells. Typing `=CALCBLOC` shows the help text.
 
    | Cell | Formula | Expected (2026 data) |
@@ -164,18 +164,18 @@ The add-on sends only what a formula or the sidebar asks for (country, region, y
 
 ## Data, accuracy and licence
 
-Tax data comes from [CalcBloc](https://calcbloc.com/data): every figure is taken from the official government source named next to it, with the date it was last checked. Results are estimates for planning, not tax, legal or financial advice.
+Tax data comes from [CalcBloc](https://calcbloc.com/data?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss): every figure is taken from the official government source named next to it, with the date it was last checked. Results are estimates for planning, not tax, legal or financial advice.
 
 - Data licence: CC BY 4.0. Keep the credit **"Data by CalcBloc (calcbloc.com/data)"** with a link wherever you share or publish figures from this add-on; inserted tables include it.
 - Code licence: MIT (see [LICENSE](LICENSE)).
-- API terms: [calcbloc.com/developers/terms](https://calcbloc.com/developers/terms).
+- API terms: [calcbloc.com/developers/terms](https://calcbloc.com/developers/terms?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss).
 
 ## Links
 
-- Website: [calcbloc.com](https://calcbloc.com)
-- Tax tables and downloads: [calcbloc.com/data](https://calcbloc.com/data)
-- API documentation and free keys: [calcbloc.com/developers](https://calcbloc.com/developers)
+- Website: [calcbloc.com](https://calcbloc.com/?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss)
+- Tax tables and downloads: [calcbloc.com/data](https://calcbloc.com/data?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss)
+- API documentation and free keys: [calcbloc.com/developers](https://calcbloc.com/developers?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss)
 
 ## About
 
-[CalcBloc](https://calcbloc.com) is built and maintained by [itmarkerz technologies](https://itmarkerz.co.in), a web and mobile app development company in Kerala, India. The data behind this add-on is at [calcbloc.com/data](https://calcbloc.com/data) and the API documentation at [calcbloc.com/developers](https://calcbloc.com/developers). The other CalcBloc packages (Python, JavaScript, PHP, R, the MCP server and the dataset itself) are in the [itmarkerz GitHub organization](https://github.com/itmarkerz).
+[CalcBloc](https://calcbloc.com/?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss) is built and maintained by [itmarkerz technologies](https://itmarkerz.co.in/?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss), a web and mobile app development company in Kerala, India. The data behind this add-on is at [calcbloc.com/data](https://calcbloc.com/data?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss) and the API documentation at [calcbloc.com/developers](https://calcbloc.com/developers?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss). The other CalcBloc packages (Python, JavaScript, PHP, R, the MCP server and the dataset itself) are in the [itmarkerz GitHub organization](https://github.com/itmarkerz).

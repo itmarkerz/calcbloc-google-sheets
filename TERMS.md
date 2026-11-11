@@ -2,7 +2,7 @@
 
 **Draft for review. Last updated: 11 November 2026.**
 
-These terms apply to the CalcBloc for Google Sheets add-on ("the add-on"). By installing or using it you agree to them. Use of the CalcBloc API through the add-on is also subject to the [CalcBloc API terms](https://calcbloc.com/developers/terms) and the website [terms of use](https://calcbloc.com/terms).
+These terms apply to the CalcBloc for Google Sheets add-on ("the add-on"). By installing or using it you agree to them. Use of the CalcBloc API through the add-on is also subject to the [CalcBloc API terms](https://calcbloc.com/developers/terms?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss) and the website [terms of use](https://calcbloc.com/terms?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss).
 
 ## 1. What the add-on does
 
@@ -14,7 +14,7 @@ Results are estimates based on published tax rules and the assumptions stated on
 
 ## 3. Data licence and credit
 
-The tax data is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). If you share or publish figures obtained through the add-on, keep the credit **"Data by CalcBloc (calcbloc.com/data)"** with a link to [calcbloc.com/data](https://calcbloc.com/data). Tables inserted by the add-on include this credit; please do not remove it from copies you share.
+The tax data is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). If you share or publish figures obtained through the add-on, keep the credit **"Data by CalcBloc (calcbloc.com/data)"** with a link to [calcbloc.com/data](https://calcbloc.com/data?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss). Tables inserted by the add-on include this credit; please do not remove it from copies you share.
 
 ## 4. Fair use and limits
 
@@ -42,4 +42,4 @@ Updated terms will be published here with a new date. Continuing to use the add-
 
 ## 10. Contact
 
-[calcbloc.com/contact](https://calcbloc.com/contact)
+[calcbloc.com/contact](https://calcbloc.com/contact?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss)

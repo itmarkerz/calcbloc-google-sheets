@@ -8,6 +8,20 @@ export const DEVELOPERS_URL = `${SITE}/developers`;
 export const KEYS_URL = `${SITE}/developers/keys`;
 export const API_TERMS_URL = `${SITE}/developers/terms`;
 
+/**
+ * Referral tag for calcbloc.com links the add-on shows to people (inserted-table credit and page links, sidebar
+ * links), so the site's analytics can tell the visit came from this add-on. API calls and data stay plain.
+ */
+export const APP_UTM = "utm_source=calcbloc-google-sheets&utm_medium=app&utm_campaign=itmarkerz-oss";
+export function appLink(url: string): string {
+  if (!/^https:\/\/(www\.)?calcbloc\.com([/?#]|$)/.test(url) || /[?&]utm_source=/.test(url)) return url;
+  const hashAt = url.indexOf("#");
+  let base = hashAt === -1 ? url : url.slice(0, hashAt);
+  const hash = hashAt === -1 ? "" : url.slice(hashAt);
+  if (/^https:\/\/[^/?]+$/.test(base)) base += "/";
+  return `${base}${base.includes("?") ? "&" : "?"}${APP_UTM}${hash}`;
+}
+
 /** The credit line required by the data licence (CC BY 4.0). Shown next to every inserted table and in function help. */
 export const CREDIT = "Data by CalcBloc (calcbloc.com/data)";
 export const LICENCE = "CC BY 4.0";

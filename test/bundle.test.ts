@@ -80,6 +80,7 @@ describe("menu and sidebar", () => {
     expect(html.title).toBe("CalcBloc tax data");
     expect(html.getContent()).toContain('var INITIAL_TAB = "settings"');
     expect(html.getContent()).toContain("Data by CalcBloc (calcbloc.com/data)");
+    expect(html.getContent()).toContain('href="https://calcbloc.com/data?utm_source=calcbloc-google-sheets&amp;utm_medium=app&amp;utm_campaign=itmarkerz-oss"');
   });
 
   it("sidebarInit returns countries and settings, never the key itself", () => {

@@ -17,8 +17,8 @@ describe("Insert tax table", () => {
     expect(ss.getActiveSheet()).toBe(sheet);
     const rows = sheet.dump();
     expect(rows[0][0]).toBe("Norway 2026 tax tables (NOK)");
-    expect(rows[1][0]).toBe(`=HYPERLINK("https://calcbloc.com/data","${CREDIT}")`);
-    expect(rows[1][1]).toBe('=HYPERLINK("https://calcbloc.com/norway/tax-tables/2026","Full table with notes: calcbloc.com/norway/tax-tables/2026")');
+    expect(rows[1][0]).toBe(`=HYPERLINK("https://calcbloc.com/data?utm_source=calcbloc-google-sheets&utm_medium=app&utm_campaign=itmarkerz-oss","${CREDIT}")`);
+    expect(rows[1][1]).toBe('=HYPERLINK("https://calcbloc.com/norway/tax-tables/2026?utm_source=calcbloc-google-sheets&utm_medium=app&utm_campaign=itmarkerz-oss","Full table with notes: calcbloc.com/norway/tax-tables/2026")');
     expect(rows[4]).toEqual(TABLE_HEADER);
     expect(sheet.frozenRows).toBe(5);
     const data = rows.slice(5, 5 + 98);
@@ -29,7 +29,7 @@ describe("Insert tax table", () => {
     const footer = rows.at(-1)!;
     expect(footer[0]).toContain(CREDIT);
     expect(footer[0]).toContain("CC BY 4.0");
-    expect(footer[1]).toBe('=HYPERLINK("https://calcbloc.com/data","calcbloc.com/data")');
+    expect(footer[1]).toBe('=HYPERLINK("https://calcbloc.com/data?utm_source=calcbloc-google-sheets&utm_medium=app&utm_campaign=itmarkerz-oss","calcbloc.com/data")');
   });
 
   it("formats rates as percentages and keeps formula cells as formulas", () => {

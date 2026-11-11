@@ -5,7 +5,7 @@
   "description": "Google Sheets add-on with take-home pay, income tax and tax-rate functions plus official tax tables, using the CalcBloc API.",
   "license": "MIT",
   "author": "CalcBloc",
-  "homepage": "https://calcbloc.com/data",
+  "homepage": "https://calcbloc.com/data?utm_source=calcbloc-google-sheets&utm_medium=package&utm_campaign=itmarkerz-oss",
   "repository": {
     "type": "git",
     "url": "https://github.com/itmarkerz/calcbloc-google-sheets.git"

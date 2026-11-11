@@ -2,7 +2,7 @@
 
 **Draft for review. Last updated: 11 November 2026.**
 
-This policy covers the CalcBloc for Google Sheets add-on ("the add-on"). The calcbloc.com website and API are covered by the [CalcBloc privacy policy](https://calcbloc.com/privacy).
+This policy covers the CalcBloc for Google Sheets add-on ("the add-on"). The calcbloc.com website and API are covered by the [CalcBloc privacy policy](https://calcbloc.com/privacy?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss).
 
 ## Summary
 
@@ -30,7 +30,7 @@ When a formula or the sidebar needs data, the add-on sends an HTTPS request to `
 
 Requests come from Google's servers, not from your computer, so CalcBloc does not see your IP address. No Google account information (name, email, account id) is sent.
 
-On the CalcBloc side, the API's own request log records the endpoint, country, response status, timing and the public id of the key (or "anonymous"); it does not record the amounts, the full address of the request or the key itself. Rate limiting stores a shortened one-way hash of the requesting address (here, a Google server) for up to a day. The hosting provider and the CDN (Cloudflare) may keep standard access logs; see the [CalcBloc privacy policy](https://calcbloc.com/privacy).
+On the CalcBloc side, the API's own request log records the endpoint, country, response status, timing and the public id of the key (or "anonymous"); it does not record the amounts, the full address of the request or the key itself. Rate limiting stores a shortened one-way hash of the requesting address (here, a Google server) for up to a day. The hosting provider and the CDN (Cloudflare) may keep standard access logs; see the [CalcBloc privacy policy](https://calcbloc.com/privacy?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss).
 
 ## What is stored, and where
 
@@ -53,6 +53,8 @@ The sidebar never sends your saved key back to the browser; it shows only its la
 - No transfer of data to anyone other than CalcBloc (and Google, which runs the add-on).
 - Google user data obtained through Google APIs is not used to develop, improve or train machine-learning or AI models.
 
+Links from the add-on to calcbloc.com (in the sidebar and in inserted tables) carry a referral tag naming the add-on (utm_source=calcbloc-google-sheets, utm_medium=app, utm_campaign=itmarkerz-oss) so CalcBloc can see which product a visit came from; the tag contains no personal or browsing data.
+
 The add-on's use of information received from Google APIs adheres to the [Google API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy), including the Limited Use requirements.
 
 ## Your choices
@@ -72,4 +74,4 @@ Changes to this policy will be published here with a new date. Material changes 
 
 ## Contact
 
-Questions or requests: [calcbloc.com/contact](https://calcbloc.com/contact).
+Questions or requests: [calcbloc.com/contact](https://calcbloc.com/contact?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss).

@@ -71,10 +71,10 @@ Screenshots must be captured in real Google Sheets (at least one must show the a
 | --- | --- | --- |
 | Terms of service (required) | `https://calcbloc.com/google-sheets/terms` | Page to be created from [TERMS.md](../TERMS.md) |
 | Privacy policy (required) | `https://calcbloc.com/google-sheets/privacy` | Page to be created from [PRIVACY.md](../PRIVACY.md); must be on the verified domain |
-| Support (required) | `https://calcbloc.com/contact` | Exists |
-| Setup / Help (optional) | `https://calcbloc.com/google-sheets` | Page to be created (install steps, function reference); or link the GitHub README |
+| Support (required) | `https://calcbloc.com/contact?utm_source=calcbloc-google-sheets&utm_medium=listing&utm_campaign=itmarkerz-oss` | Exists |
+| Setup / Help (optional) | `https://calcbloc.com/google-sheets?utm_source=calcbloc-google-sheets&utm_medium=listing&utm_campaign=itmarkerz-oss` | Page to be created (install steps, function reference); or link the GitHub README |
 | Report issue (optional) | `https://github.com/itmarkerz/calcbloc-google-sheets/issues` | Exists once the repository is public with issues enabled |
-| Developer website | `https://calcbloc.com` | Exists |
+| Developer website | `https://calcbloc.com/?utm_source=calcbloc-google-sheets&utm_medium=listing&utm_campaign=itmarkerz-oss` | Exists |
 
 ## OAuth scopes and justification
 

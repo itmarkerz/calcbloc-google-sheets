@@ -1,4 +1,4 @@
-import { CREDIT, DATA_URL, LICENCE } from "./config";
+import { appLink, CREDIT, DATA_URL, LICENCE } from "./config";
 import { resolveCountry, resolveRegion } from "./countries";
 import { getTable, resolveYear, rowLabel, tableName, type Table } from "./tables";
 
@@ -19,7 +19,7 @@ export function tableGrid(t: Table): { values: (string | number)[][]; formats: s
   const moneyFmt = "#,##0.##";
   const values: (string | number)[][] = [
     pad([`${tableName(t)} tax tables (${t.currency})`]),
-    pad([link(DATA_URL, CREDIT), link(t.pageUrl, `Full table with notes: ${t.pageUrl.replace(/^https:\/\//, "")}`)]),
+    pad([link(appLink(DATA_URL), CREDIT), link(appLink(t.pageUrl), `Full table with notes: ${t.pageUrl.replace(/^https:\/\//, "")}`)]),
     pad([`Effective ${t.effectiveFrom} to ${t.effectiveTo}. Status: ${t.status}${t.isCurrent ? "" : " (earlier year, kept for reference)"}. Rates are decimals shown as percentages. Each row links to its official source.`]),
     pad([]),
     TABLE_HEADER,
@@ -48,7 +48,7 @@ export function tableGrid(t: Table): { values: (string | number)[][]; formats: s
     );
   }
   values.push(pad([]));
-  values.push(pad([`${CREDIT}. Licence ${LICENCE}: keep this credit and the link when you share or publish these figures.`, link(DATA_URL, "calcbloc.com/data")]));
+  values.push(pad([`${CREDIT}. Licence ${LICENCE}: keep this credit and the link when you share or publish these figures.`, link(appLink(DATA_URL), "calcbloc.com/data")]));
 
   const formats = values.map((row, i) => {
     if (i < headerRow) return row.map(() => "@");

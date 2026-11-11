@@ -1,6 +1,6 @@
 import { checkKey } from "./api";
 import { cacheClear } from "./cache";
-import { CREDIT, DATA_URL, DEVELOPERS_URL, KEYS_URL, VERSION } from "./config";
+import { appLink, CREDIT, DATA_URL, DEVELOPERS_URL, KEYS_URL, VERSION } from "./config";
 import { getCountries } from "./countries";
 import { getSettingsView, saveSettings, validateKey, type SettingsInput } from "./settings";
 import { insertTaxTable, type InsertRequest } from "./sheet";
@@ -46,7 +46,7 @@ export function sidebarInit() {
   return reply(() => ({
     version: VERSION,
     credit: CREDIT,
-    links: { data: DATA_URL, developers: DEVELOPERS_URL, keys: KEYS_URL },
+    links: { data: appLink(DATA_URL), developers: appLink(DEVELOPERS_URL), keys: appLink(KEYS_URL) },
     settings: getSettingsView(),
     countries: getCountries()
       .map((c) => ({ code: c.code, name: c.name, currentYear: c.currentYear, years: c.years, regions: c.regions, tablesOnly: c.tablesOnly, tablesPageUrl: c.tablesPageUrl }))
