@@ -2,8 +2,8 @@
 // formulas and the "Insert tax table" command produce.
 //
 //   npm run demo                         offline: recorded API responses and tables from test/fixtures
-//   npm run demo -- --live               real calls to https://calcbloc.com/api/v1 (about 8 requests; set
-//                                        CALCBLOC_API_KEY to use a key instead of the 50-a-day anonymous allowance)
+//   npm run demo -- --live               real calls to https://calcbloc.com/api/v1 (about 8 requests; needs a free
+//                                        key in CALCBLOC_API_KEY, from https://calcbloc.com/developers/keys)
 //   npm run demo -- --html <folder>      also writes sheet.html and sidebar.html previews to <folder>
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -17,9 +17,15 @@ const args = process.argv.slice(2);
 const live = args.includes("--live");
 const htmlDir = args.includes("--html") ? resolve(args[args.indexOf("--html") + 1] ?? "preview") : null;
 
-const fake = createFakeApi({ limits: false });
+// The add-on makes no request without an API key, so the offline demo uses a key the fake API accepts.
+const DEMO_KEY = "cb_" + "Demo0000000000000000000000000000";
+if (live && !process.env.CALCBLOC_API_KEY) {
+  console.error("--live needs a free CalcBloc API key in CALCBLOC_API_KEY (https://calcbloc.com/developers/keys).");
+  process.exit(1);
+}
+const fake = createFakeApi({ keys: [DEMO_KEY], limits: false });
 const gas = createGas({ handler: live ? liveHandler : fake.handler, whitelist: manifest().urlFetchWhitelist, htmlDir: join(root, "apps-script") });
-if (live && process.env.CALCBLOC_API_KEY) gas.userProps.setProperty("calcbloc.apiKey", process.env.CALCBLOC_API_KEY);
+gas.userProps.setProperty("calcbloc.apiKey", live ? process.env.CALCBLOC_API_KEY : DEMO_KEY);
 const g = loadBundle(gas.globals);
 
 console.log(`CalcBloc for Google Sheets ${g.CalcBlocLib.VERSION}: local demo (${live ? "LIVE API" : "offline fixtures"})\n`);

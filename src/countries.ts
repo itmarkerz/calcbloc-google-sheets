@@ -1,4 +1,4 @@
-import { getJson } from "./api";
+import { getJson, requireKey } from "./api";
 import { cacheGet, cachePut } from "./cache";
 import { CACHE_TTL_SECONDS, DEVELOPERS_URL } from "./config";
 import { defaultCountry, defaultRegion } from "./settings";
@@ -66,6 +66,7 @@ export function compactCountries(raw: { countries: ApiCountry[] }): Country[] {
 const CACHE_KEY = "countries:v1";
 
 export function getCountries(): Country[] {
+  requireKey();
   const hit = cacheGet<Country[]>("public", CACHE_KEY);
   if (hit && hit.length) return hit;
   const list = compactCountries(getJson<{ countries: ApiCountry[] }>({ path: "/countries" }, "public"));

@@ -3,8 +3,9 @@
 //   /tax-tables/{country}/{year}    tables copied from the calcbloc-data repository (same JSON as the API)
 //   /net-salary, /employer-cost     recorded live responses where available (see RECORDED), otherwise a clearly
 //                                   marked synthetic response that uses the real result names for that country
-// It also applies the API's rate limits (50/day and 5/minute without a key; 5,000/day and 60/minute with one)
-// and its error format, so the add-on's caching and messages can be checked offline.
+// It also applies the API's free-key rate limits (5,000/day and 60/minute) and its error format, so the add-on's
+// caching and messages can be checked offline. The add-on never calls without a key; a request without one gets
+// 401 api_key_required (and is counted in stats.noKey) so a test can catch it.
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -78,14 +79,14 @@ function tableFile(country, year, region) {
 }
 
 export function createFakeApi({ keys = [], limits = true, clock = { now: () => Date.now() } } = {}) {
-  const usage = new Map(); // tier -> { day, minuteStart, minuteCount }
-  const stats = { requests: 0, byPath: {} };
+  const usage = new Map(); // key -> { day, minuteStart, minute }
+  const stats = { requests: 0, noKey: 0, byPath: {} };
 
-  function rate(tier) {
-    const lim = tier === "free" ? { day: 5000, minute: 60 } : { day: 50, minute: 5 };
-    const u = usage.get(tier) ?? { day: 0, minuteStart: clock.now(), minute: 0 };
+  function rate(key) {
+    const lim = { day: 5000, minute: 60 };
+    const u = usage.get(key) ?? { day: 0, minuteStart: clock.now(), minute: 0 };
     if (clock.now() - u.minuteStart >= 60000) Object.assign(u, { minuteStart: clock.now(), minute: 0 });
-    usage.set(tier, u);
+    usage.set(key, u);
     if (limits && u.day >= lim.day) return { blocked: `Daily limit of ${lim.day} requests reached.`, retry: 3600, lim };
     if (limits && u.minute >= lim.minute) return { blocked: `Too many requests this minute (limit ${lim.minute}).`, retry: 60, lim };
     u.day++;
@@ -99,8 +100,12 @@ export function createFakeApi({ keys = [], limits = true, clock = { now: () => D
     const path = u.pathname.replace(/^\/api\/v1/, "");
     stats.byPath[path.split("/")[1]] = (stats.byPath[path.split("/")[1]] ?? 0) + 1;
     const key = Object.entries(headers).find(([k]) => k.toLowerCase() === "x-api-key")?.[1];
-    if (key && !keys.includes(key)) return error(401, "invalid_key", "This API key is not valid or has been revoked.");
-    const rl = rate(key ? "free" : "anonymous");
+    if (!key) {
+      stats.noKey++;
+      return error(401, "api_key_required", "This endpoint needs a free API key: send it in the X-API-Key header.");
+    }
+    if (!keys.includes(key)) return error(401, "invalid_key", "This API key is not valid or has been revoked.");
+    const rl = rate(key);
     if (rl.blocked) return error(429, "rate_limited", rl.blocked, { "Retry-After": String(rl.retry), "X-RateLimit-Limit": String(rl.lim.day), "X-RateLimit-Remaining": "0" });
     const rh = { "X-RateLimit-Limit": String(rl.lim.day), "X-RateLimit-Remaining": String(rl.remaining) };
     const q = Object.fromEntries(u.searchParams);

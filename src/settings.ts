@@ -35,7 +35,7 @@ function read(p: GoogleAppsScript.Properties.Properties | null, key: string): st
   }
 }
 
-/** The key used for API calls: the user's own, else one shared with this spreadsheet, else none (anonymous). */
+/** The key used for API calls: the user's own, else one shared with this spreadsheet, else "" (no calls are made). */
 export function currentApiKey(): string {
   return read(userProps(), PROP_API_KEY) || read(docProps(), PROP_SHARED_API_KEY);
 }

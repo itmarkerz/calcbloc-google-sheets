@@ -4,6 +4,8 @@ A Google Sheets add-on with custom functions for take-home pay, income tax, empl
 
 CalcBloc is a product of [itmarkerz technologies](https://itmarkerz.co.in/?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss).
 
+**Needs a free API key.** Get one at [calcbloc.com/developers/keys](https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss) and paste it in **Extensions > CalcBloc > Settings and API key**. Until a key is saved the add-on makes no requests: formulas and the sidebar show a short set-up message instead.
+
 > **Status:** ready for review, not published. Nothing has been submitted to the Google Workspace Marketplace. See [PUBLISHING_CHECKLIST.md](PUBLISHING_CHECKLIST.md).
 
 ```text
@@ -85,7 +87,7 @@ About half the countries (for example Norway, Austria, Poland and Switzerland) h
 
 **Extensions > CalcBloc > Settings and API key**:
 
-- **API key.** Without a key the CalcBloc API allows 50 requests a day and 5 a minute per internet address. Google runs every spreadsheet's requests from shared addresses, so that allowance is shared with other Apps Script users and can run out. A [free key](https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss) gives 5,000 requests a day and 60 a minute. The sidebar checks the key with calcbloc.com before saving it in your Google account's settings for this add-on (user properties). Only its last four characters are ever shown again.
+- **API key (required).** The add-on needs a [free key](https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss): 5,000 requests a day and 60 a minute. Google runs every spreadsheet's requests from shared internet addresses, so the API's small no-key allowance would be used up by other Apps Script users; the add-on therefore never calls the API without a key. Until one is saved, formulas return a set-up message with the key link and the sidebar opens on Settings. The sidebar checks the key with calcbloc.com before saving it in your Google account's settings for this add-on (user properties). Only its last four characters are ever shown again.
 - **Share my key with this spreadsheet.** Custom functions run in a restricted mode in which Google only lets them read the spreadsheet owner's settings. If you edit a sheet someone else owns, tick this so the formulas can use your key; it is then stored with the spreadsheet (document properties), readable only by the add-on.
 - **Default country and region.** Saved with the spreadsheet, so every collaborator's formulas give the same results.
 - **Clear cached results.** Results are cached for up to 6 hours; this starts fresh.
@@ -125,7 +127,7 @@ npm run build && npx @google/clasp@3 push --force
 
 1. Open the spreadsheet (`npx @google/clasp@3 open-container`, or open it from Drive) and reload the page. A bound script shows its menu under **Extensions** with the project's name: **Extensions > CalcBloc review**.
 2. Click **Settings and API key**. The first click asks you to authorise the script; the prompt lists the three scopes in [appsscript.json](apps-script/appsscript.json). Formulas can call the API only after this step (until then they show a permission error).
-3. Paste a [free API key](https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss) and save. This avoids the shared anonymous limit.
+3. Paste a [free API key](https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss) and save. Without one, formulas show the set-up message and nothing is sent to calcbloc.com.
 4. Try the formulas below in cells. Typing `=CALCBLOC` shows the help text.
 
    | Cell | Formula | Expected (2026 data) |
@@ -155,19 +157,19 @@ test/           vitest tests, including worked tax examples and tests of the bui
 
 - `npm run build` bundles `src/` into `dist/lib.js` as one global object (`CalcBlocLib`) for the V8 runtime and copies `apps-script/`. Sheets reads custom-function help text from JSDoc on plain global functions, so those live in `apps-script/Code.js` and forward to the bundle.
 - `npm test` runs the tests against the source and against the built files loaded the way Apps Script loads them.
-- `npm run demo -- --live` makes about 10 real requests to calcbloc.com (set `CALCBLOC_API_KEY` to use a key). `npm run demo -- --html <folder>` also writes HTML previews of the outputs and the sidebar.
+- `npm run demo -- --live` makes about 10 real requests to calcbloc.com with the free key in `CALCBLOC_API_KEY` (required). `npm run demo -- --html <folder>` also writes HTML previews of the outputs and the sidebar.
 - `npm run fixtures` refreshes the test tables from a local copy of the [calcbloc-data](https://github.com/itmarkerz/calcbloc-data) repository.
 
 ## Privacy
 
-The add-on sends only what a formula or the sidebar asks for (country, region, year, salary amount and any options you add, plus your API key if you saved one) to `https://calcbloc.com/api/v1`, the only address it is allowed to contact. It does not read other cells, other files, your name or your email address. Settings are stored with Google (your account's add-on settings and the spreadsheet's add-on settings); results are cached by Google for up to 6 hours. Full text: [PRIVACY.md](PRIVACY.md).
+The add-on sends only what a formula or the sidebar asks for (country, region, year, salary amount and any options you add, plus your API key) to `https://calcbloc.com/api/v1`, the only address it is allowed to contact. It does not read other cells, other files, your name or your email address. Settings are stored with Google (your account's add-on settings and the spreadsheet's add-on settings); results are cached by Google for up to 6 hours. Full text: [PRIVACY.md](PRIVACY.md).
 
 ## Data, accuracy and licence
 
 Tax data comes from [CalcBloc](https://calcbloc.com/data?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss): every figure is taken from the official government source named next to it, with the date it was last checked. Results are estimates for planning, not tax, legal or financial advice.
 
 - Data licence: CC BY 4.0. Keep the credit **"Data by CalcBloc (calcbloc.com/data)"** with a link wherever you share or publish figures from this add-on; inserted tables include it.
-- Code licence: MIT (see [LICENSE](LICENSE)).
+- Code licence: MIT, copyright itmarkerz technologies (see [LICENSE](LICENSE)).
 - API terms: [calcbloc.com/developers/terms](https://calcbloc.com/developers/terms?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss).
 
 ## Links

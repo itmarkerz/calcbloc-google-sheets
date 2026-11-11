@@ -93,7 +93,30 @@ describe("menu and sidebar", () => {
     expect(res.data.settings.keyHint).toBe("cb_…O5p6");
   });
 
+  it("without a key: the sidebar opens with the set-up message and fetches nothing", () => {
+    env = setup({ key: null });
+    gs = loadBundle(env.gas.globals) as never;
+    const res = gs.sidebarInit();
+    expect(res.ok).toBe(true);
+    expect(res.data.needsKey).toBe(true);
+    expect(res.data.countries).toEqual([]);
+    expect(res.data.setupMessage).toMatch(/needs a free API key.*calcbloc\.com\/developers\/keys\?utm_source=calcbloc-google-sheets&utm_medium=app/);
+    expect(res.data.links.keys).toBe("https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&utm_medium=app&utm_campaign=itmarkerz-oss");
+    const insert = gs.sidebarInsertTable({ country: "uk", year: "2026-27", region: "" });
+    expect(insert).toEqual({ ok: false, message: expect.stringMatching(/needs a free API key/) });
+    expect(() => gs.CALCBLOC_COUNTRIES()).toThrow(/needs a free API key/);
+    expect(env.gas.fetch.calls).toHaveLength(0);
+    gs.showSettings();
+    const html = env.gas.spreadsheetApp.sidebars[0].getContent();
+    expect(html).toContain('id="needs-key"');
+    expect(html).toContain('href="https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&amp;utm_medium=app&amp;utm_campaign=itmarkerz-oss"');
+    expect(html).not.toMatch(/anonymous|50 requests a day/i);
+  });
+
   it("saves a key only after the API accepts it, and can share it with the spreadsheet", () => {
+    env = setup({ key: null });
+    gs = loadBundle(env.gas.globals) as never;
+    expect(gs.sidebarInit().data.needsKey).toBe(true);
     const bad = gs.sidebarSaveSettings({ apiKey: "nonsense" });
     expect(bad).toEqual({ ok: false, message: expect.stringMatching(/does not look like a CalcBloc API key/) });
     const revoked = gs.sidebarSaveSettings({ apiKey: "cb_" + "Z".repeat(32) });
@@ -106,9 +129,11 @@ describe("menu and sidebar", () => {
     expect(env.gas.documentProps.getProperty("calcbloc.sharedApiKey")).toBe(TEST_KEY);
     expect(env.gas.documentProps.getProperty("calcbloc.defaultCountry")).toBe("us");
     expect(gs.CALCBLOC_NET("", 60000)).toBe(47806.56);
+    expect(gs.sidebarInit().data.needsKey).toBe(false);
     const removed = gs.sidebarSaveSettings({ removeKey: true, shareKey: false });
     expect(removed.data.settings.hasKey).toBe(false);
     expect(env.gas.documentProps.getProperty("calcbloc.sharedApiKey")).toBeNull();
+    expect(gs.sidebarInit().data.needsKey).toBe(true);
   });
 
   it("inserts a table from the sidebar and reports errors as messages", () => {

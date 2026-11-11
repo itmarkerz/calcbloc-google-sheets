@@ -30,6 +30,10 @@
     <h2>CalcBloc tax data</h2>
     <p class="credit"><a href="https://calcbloc.com/data?utm_source=calcbloc-google-sheets&amp;utm_medium=app&amp;utm_campaign=itmarkerz-oss" target="_blank" rel="noopener">Data by CalcBloc (calcbloc.com/data)</a> · CC BY 4.0</p>
 
+    <div id="needs-key" class="status" hidden>
+      <strong>Add your free API key to start.</strong> CalcBloc formulas and tables need a free key. <a href="https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&amp;utm_medium=app&amp;utm_campaign=itmarkerz-oss" target="_blank" rel="noopener">Get a free key</a> (takes a minute), paste it under Settings below and click <strong>Save settings</strong>.
+    </div>
+
     <div class="tabs" role="tablist">
       <button role="tab" id="tab-insert" aria-controls="insert">Insert table</button>
       <button role="tab" id="tab-settings" aria-controls="settings">Settings</button>
@@ -55,7 +59,7 @@
       <label for="s-key">CalcBloc API key</label>
       <p class="hint" id="s-key-state"></p>
       <input type="password" id="s-key" placeholder="cb_…" autocomplete="off" spellcheck="false" />
-      <p class="hint">Without a key the API allows 50 requests a day per internet address, and Google's servers share addresses, so formulas can hit that limit. A <a id="keys-link" href="https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&amp;utm_medium=app&amp;utm_campaign=itmarkerz-oss" target="_blank" rel="noopener">free key</a> gives 5,000 a day. The key is stored in your Google account's settings for this add-on and sent only to calcbloc.com.</p>
+      <p class="hint">The add-on needs a <a id="keys-link" href="https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&amp;utm_medium=app&amp;utm_campaign=itmarkerz-oss" target="_blank" rel="noopener">free CalcBloc API key</a> (5,000 requests a day, 60 a minute); without one it makes no requests. The key is checked with calcbloc.com, stored in your Google account's settings for this add-on and sent only to calcbloc.com.</p>
       <label class="check"><input type="checkbox" id="s-share" /> <span>Let formulas in this spreadsheet use my key, even when someone else owns the file (custom functions can only read the owner's settings).</span></label>
       <div class="row"><button id="s-remove">Remove key</button></div>
 
@@ -138,7 +142,7 @@
         var s = state.settings;
         $("s-key-state").textContent = s.hasKey
           ? "Key saved: " + s.keyHint + (s.keyShared ? " (shared with this spreadsheet's formulas)" : "")
-          : s.sharedKeyPresent ? "No personal key. Formulas in this spreadsheet use a key shared by a collaborator." : "No key saved: requests are anonymous.";
+          : s.sharedKeyPresent ? "No personal key. Formulas in this spreadsheet use a key shared by a collaborator." : "No key saved yet. Formulas and tables need a free key.";
         $("s-share").checked = !!s.keyShared;
         $("s-remove").disabled = !s.hasKey;
         $("s-share").disabled = !s.hasKey && !$("s-key").value;
@@ -148,7 +152,15 @@
         if (!res.ok) { status("t-status", res.message, "error"); status("s-status", res.message, "error"); return; }
         state.countries = res.data.countries;
         state.settings = res.data.settings;
+        state.needsKey = !!res.data.needsKey;
+        $("needs-key").hidden = !state.needsKey;
+        $("t-insert").disabled = state.needsKey;
+        if (state.needsKey) { status("t-status", res.data.setupMessage, "error"); showTab("settings"); }
+        else status("t-status", "");
         var tc = $("t-country"), sc = $("s-country");
+        tc.innerHTML = "";
+        sc.innerHTML = "";
+        option(sc, "", "None");
         state.countries.forEach(function (c) {
           option(tc, c.code, c.name, c.code === (state.settings.defaultCountry || "us"));
           option(sc, c.code, c.name, c.code === state.settings.defaultCountry);
@@ -176,7 +188,9 @@
       });
 
       function save(extra) {
-        var input = { defaultCountry: $("s-country").value, defaultRegion: $("s-region").value.trim(), shareKey: $("s-share").checked };
+        var input = { defaultRegion: $("s-region").value.trim(), shareKey: $("s-share").checked };
+        // The country list is empty until a key is saved: keep the spreadsheet's default country untouched then.
+        if (state.countries.length) input.defaultCountry = $("s-country").value;
         var key = $("s-key").value.trim();
         if (key) input.apiKey = key;
         for (var k in extra) input[k] = extra[k];
@@ -188,6 +202,8 @@
             $("s-key").value = "";
             showKeyState();
             status("s-status", res.data.message, "ok");
+            // First key saved: load the country list now that the add-on may call the API.
+            if (state.needsKey && (state.settings.hasKey || state.settings.sharedKeyPresent)) loadSidebar();
           })
           .withFailureHandler(function (e) { status("s-status", String(e && e.message || e), "error"); })
           .sidebarSaveSettings(input);
@@ -201,7 +217,10 @@
       });
 
       showTab(INITIAL_TAB === "settings" || INITIAL_TAB === "help" ? INITIAL_TAB : "insert");
-      run().withSuccessHandler(init).withFailureHandler(function (e) { status("t-status", String(e && e.message || e), "error"); }).sidebarInit();
+      function loadSidebar() {
+        run().withSuccessHandler(init).withFailureHandler(function (e) { status("t-status", String(e && e.message || e), "error"); }).sidebarInit();
+      }
+      loadSidebar();
     </script>
   </body>
 </html>

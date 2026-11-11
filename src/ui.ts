@@ -1,8 +1,8 @@
-import { checkKey } from "./api";
+import { checkKey, noKeyMessage } from "./api";
 import { cacheClear } from "./cache";
 import { appLink, CREDIT, DATA_URL, DEVELOPERS_URL, KEYS_URL, VERSION } from "./config";
 import { getCountries } from "./countries";
-import { getSettingsView, saveSettings, validateKey, type SettingsInput } from "./settings";
+import { currentApiKey, getSettingsView, saveSettings, validateKey, type SettingsInput } from "./settings";
 import { insertTaxTable, type InsertRequest } from "./sheet";
 import { errorMessage } from "./util";
 
@@ -41,17 +41,27 @@ function reply<T>(fn: () => T): Reply<T> {
   }
 }
 
-/** Everything the sidebar needs to draw itself: settings (key masked), countries with years and regions, links. */
+/**
+ * Everything the sidebar needs to draw itself: settings (key masked), countries with years and regions, links.
+ * Without an API key the country list is not fetched: the sidebar opens on Settings with the set-up message.
+ */
 export function sidebarInit() {
-  return reply(() => ({
-    version: VERSION,
-    credit: CREDIT,
-    links: { data: appLink(DATA_URL), developers: appLink(DEVELOPERS_URL), keys: appLink(KEYS_URL) },
-    settings: getSettingsView(),
-    countries: getCountries()
-      .map((c) => ({ code: c.code, name: c.name, currentYear: c.currentYear, years: c.years, regions: c.regions, tablesOnly: c.tablesOnly, tablesPageUrl: c.tablesPageUrl }))
-      .sort((a, b) => a.name.localeCompare(b.name)),
-  }));
+  return reply(() => {
+    const needsKey = !currentApiKey();
+    return {
+      version: VERSION,
+      credit: CREDIT,
+      links: { data: appLink(DATA_URL), developers: appLink(DEVELOPERS_URL), keys: appLink(KEYS_URL) },
+      settings: getSettingsView(),
+      needsKey,
+      setupMessage: needsKey ? noKeyMessage() : "",
+      countries: needsKey
+        ? []
+        : getCountries()
+            .map((c) => ({ code: c.code, name: c.name, currentYear: c.currentYear, years: c.years, regions: c.regions, tablesOnly: c.tablesOnly, tablesPageUrl: c.tablesPageUrl }))
+            .sort((a, b) => a.name.localeCompare(b.name)),
+    };
+  });
 }
 
 export function sidebarSaveSettings(input: SettingsInput) {

@@ -10,19 +10,40 @@ beforeEach(() => {
 });
 
 describe("API key", () => {
-  it("sends no key by default (anonymous) and the user's key once saved", () => {
+  it("sends the saved key with every request", () => {
     CALCBLOC_RATE("norway", "general-income", "Individuals");
-    expect(env.gas.fetch.apiKeysSent().every((k: string | null) => k === null)).toBe(true);
-    env.gas.userProps.setProperty(PROP_API_KEY, TEST_KEY);
     CALCBLOC_NET("uk", 41000);
-    expect(env.gas.fetch.apiKeysSent().at(-1)).toBe(TEST_KEY);
+    const sent = env.gas.fetch.apiKeysSent();
+    expect(sent.length).toBeGreaterThan(0);
+    expect(sent.every((k: string | null) => k === TEST_KEY)).toBe(true);
+    expect(env.api.stats.noKey).toBe(0);
+  });
+
+  it("without a key: makes no request and every function explains how to add a free key", () => {
+    env = setup({ key: null });
+    const setupMsg = /CalcBloc needs a free API key\. Get one at https:\/\/calcbloc\.com\/developers\/keys\?utm_source=calcbloc-google-sheets&utm_medium=app&utm_campaign=itmarkerz-oss and paste it in Extensions > CalcBloc > Settings and API key/;
+    expect(() => CALCBLOC_NET("uk", 40000)).toThrow(setupMsg);
+    expect(() => CALCBLOC_RATE("norway", "general-income", "Individuals")).toThrow(setupMsg);
+    expect(() => CALCBLOC_NET("uk", [[30000], [40000]])).toThrow(setupMsg);
+    expect(getMany([{ path: "/countries" }], "public")[0]).toMatchObject({ ok: false, code: "api_key_missing" });
+    expect(env.gas.fetch.calls).toHaveLength(0);
+    expect(requests(env.api)).toBe(0);
+  });
+
+  it("without a key, does not answer from the shared cache either (results only with a key)", () => {
+    CALCBLOC_RATE("norway", "general-income", "Individuals"); // fills the shared cache with this user's key
+    env.gas.userProps.deleteProperty(PROP_API_KEY);
+    const before = env.gas.fetch.calls.length;
+    expect(() => CALCBLOC_RATE("norway", "general-income", "Individuals")).toThrow(/needs a free API key/);
+    expect(env.gas.fetch.calls.length).toBe(before);
   });
 
   it("in a custom function, falls back to a key shared with the spreadsheet (owner's user properties are empty)", () => {
+    env = setup({ key: null });
     env.gas.env.mode = "custom-function";
     env.gas.userProps.setProperty(PROP_API_KEY, TEST_KEY); // the editor's own store: not visible here
-    CALCBLOC_NET("uk", 42000);
-    expect(env.gas.fetch.apiKeysSent().at(-1)).toBeNull();
+    expect(() => CALCBLOC_NET("uk", 42000)).toThrow(/needs a free API key.*Let formulas in this spreadsheet use my key/);
+    expect(env.gas.fetch.calls).toHaveLength(0);
     env.gas.documentProps.setProperty(PROP_SHARED_API_KEY, TEST_KEY);
     CALCBLOC_NET("uk", 43000);
     expect(env.gas.fetch.apiKeysSent().at(-1)).toBe(TEST_KEY);
@@ -35,18 +56,20 @@ describe("API key", () => {
 });
 
 describe("rate limits", () => {
-  it("anonymous: explains the shared 50/day limit and how to add a free key", () => {
+  it("explains the per-key limit when the API answers 429", () => {
     env = setup({ limits: true });
-    const salaries = [[30001], [30002], [30003], [30004], [30005], [30006]];
-    const out = CALCBLOC_NET("uk", salaries) as string[][];
-    // 5 per minute without a key: /countries + 4 calculations succeed, the rest are told why
-    expect(out.filter((r) => typeof r[0] === "number")).toHaveLength(4);
-    expect(out[5][0]).toMatch(/^Error: CalcBloc API limit reached. Without a key the API allows 50 requests a day.*calcbloc\.com\/developers\/keys/);
+    const col = Array.from({ length: 70 }, (_, i) => [30000 + i]);
+    CALCBLOC_NET("uk", col.slice(0, 40)); // /countries + 40 calculations
+    const out = CALCBLOC_NET("uk", col.slice(40)) as (number | string)[][];
+    // 60 a minute with a key: 19 more succeed, the rest are told why
+    expect(out.filter((r) => typeof r[0] === "number")).toHaveLength(19);
+    expect(String(out.at(-1)![0])).toMatch(/^Error: CalcBloc API limit reached for your key \(5,000 a day, 60 a minute\)\. Try again in about 1 min/);
   });
 
   it("holds a rate-limit error for at most a minute (no retry storm), then the cell fills in", () => {
     env = setup({ limits: true });
-    for (let i = 0; i < 4; i++) CALCBLOC_NET("uk", 50000 + i);
+    CALCBLOC_NET("uk", Array.from({ length: 40 }, (_, i) => [50000 + i]));
+    CALCBLOC_NET("uk", Array.from({ length: 19 }, (_, i) => [51000 + i]));
     expect(() => CALCBLOC_NET("uk", 60000)).toThrow(/limit reached.*Try again in about 1 min/);
     const n = requests(env.api);
     expect(() => CALCBLOC_NET("uk", 60000)).toThrow(/limit reached/);
@@ -57,7 +80,6 @@ describe("rate limits", () => {
 
   it("with a key, a 100-row column is fetched in batches of at most the per-call cap", () => {
     env = setup({ limits: true });
-    env.gas.userProps.setProperty(PROP_API_KEY, TEST_KEY);
     const col = Array.from({ length: 100 }, (_, i) => [20000 + i * 1000]);
     const first = CALCBLOC_NET("uk", col) as (number | string)[][];
     expect(first.filter((r) => typeof r[0] === "number")).toHaveLength(MAX_NEW_REQUESTS_PER_CALL);
