@@ -1,0 +1,31 @@
+{
+  "name": "calcbloc-google-sheets",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Google Sheets add-on with take-home pay, income tax and tax-rate functions plus official tax tables, using the CalcBloc API.",
+  "license": "MIT",
+  "author": "CalcBloc",
+  "homepage": "https://calcbloc.com/data",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/itmarkerz/calcbloc-google-sheets.git"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run build && vitest run",
+    "demo": "npm run build && node scripts/demo.mjs",
+    "fixtures": "node scripts/make-fixtures.mjs"
+  },
+  "devDependencies": {
+    "@types/google-apps-script": "^2.0.15",
+    "@types/node": "^22.10.0",
+    "esbuild": "^0.28.2",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.12"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top" />
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css" />
+    <style>
+      body { font-family: Roboto, Arial, sans-serif; font-size: 13px; color: #202124; margin: 0; padding: 12px 14px 24px; }
+      h2 { font-size: 15px; margin: 0 0 4px; }
+      .credit { color: #5f6368; margin: 0 0 12px; }
+      .credit a, a { color: #1a56db; }
+      .tabs { display: flex; gap: 4px; border-bottom: 1px solid #dadce0; margin-bottom: 12px; }
+      .tabs button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 6px 8px; cursor: pointer; font: inherit; color: #5f6368; min-width: 0; margin: 0; height: auto; box-shadow: none; }
+      .tabs button[aria-selected="true"] { color: #1a56db; border-bottom-color: #1a56db; font-weight: 600; }
+      .panel[hidden] { display: none; }
+      label { display: block; font-weight: 600; margin: 10px 0 4px; }
+      select, input[type="text"], input[type="password"] { width: 100%; box-sizing: border-box; }
+      .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+      .hint { color: #5f6368; margin: 4px 0 0; line-height: 1.4; }
+      .status { margin-top: 12px; padding: 8px; border-radius: 4px; background: #f1f3f4; line-height: 1.4; }
+      .status.error { background: #fce8e6; color: #a50e0e; }
+      .status.ok { background: #e6f4ea; color: #137333; }
+      .check { display: flex; gap: 6px; align-items: flex-start; font-weight: 400; }
+      code { background: #f1f3f4; padding: 1px 3px; border-radius: 3px; font-size: 12px; }
+      dl { margin: 0; } dt { font-weight: 600; margin-top: 10px; } dd { margin: 2px 0 0; color: #3c4043; line-height: 1.4; }
+      .muted { color: #5f6368; }
+    </style>
+  </head>
+  <body>
+    <h2>CalcBloc tax data</h2>
+    <p class="credit"><a href="https://calcbloc.com/data" target="_blank" rel="noopener">Data by CalcBloc (calcbloc.com/data)</a> · CC BY 4.0</p>
+
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tab-insert" aria-controls="insert">Insert table</button>
+      <button role="tab" id="tab-settings" aria-controls="settings">Settings</button>
+      <button role="tab" id="tab-help" aria-controls="help">Functions</button>
+    </div>
+
+    <section class="panel" id="insert" role="tabpanel" aria-labelledby="tab-insert">
+      <label for="t-country">Country</label>
+      <select id="t-country"></select>
+      <label for="t-year">Tax year</label>
+      <select id="t-year"></select>
+      <div id="t-region-wrap">
+        <label for="t-region">Region</label>
+        <select id="t-region"></select>
+        <p class="hint">Regional tables hold only the regional figures; the national table is a separate insert.</p>
+      </div>
+      <div class="row"><button class="action" id="t-insert">Insert tax table</button></div>
+      <p class="hint">Adds a new sheet with every band, threshold and rate, each with its official source link and the date it was last checked. The credit "Data by CalcBloc (calcbloc.com/data)" and a link to the calcbloc.com page are included: keep them when you share the figures.</p>
+      <div id="t-status" class="status" hidden></div>
+    </section>
+
+    <section class="panel" id="settings" role="tabpanel" aria-labelledby="tab-settings">
+      <label for="s-key">CalcBloc API key</label>
+      <p class="hint" id="s-key-state"></p>
+      <input type="password" id="s-key" placeholder="cb_…" autocomplete="off" spellcheck="false" />
+      <p class="hint">Without a key the API allows 50 requests a day per internet address, and Google's servers share addresses, so formulas can hit that limit. A <a id="keys-link" href="https://calcbloc.com/developers/keys" target="_blank" rel="noopener">free key</a> gives 5,000 a day. The key is stored in your Google account's settings for this add-on and sent only to calcbloc.com.</p>
+      <label class="check"><input type="checkbox" id="s-share" /> <span>Let formulas in this spreadsheet use my key, even when someone else owns the file (custom functions can only read the owner's settings).</span></label>
+      <div class="row"><button id="s-remove">Remove key</button></div>
+
+      <label for="s-country">Default country</label>
+      <select id="s-country"><option value="">None</option></select>
+      <p class="hint">Used when a formula leaves the country blank, e.g. <code>=CALCBLOC_NET(, A2)</code>. Saved with this spreadsheet.</p>
+      <label for="s-region">Default region</label>
+      <input type="text" id="s-region" placeholder="e.g. ca, on, scotland" />
+      <div class="row"><button class="action" id="s-save">Save settings</button><button id="s-clear">Clear cached results</button></div>
+      <div id="s-status" class="status" hidden></div>
+    </section>
+
+    <section class="panel" id="help" role="tabpanel" aria-labelledby="tab-help">
+      <dl>
+        <dt><code>=CALCBLOC_NET(country, gross, [region], [year], [options])</code></dt>
+        <dd>Annual take-home pay. <code>=CALCBLOC_NET("us", 60000, "ca")</code></dd>
+        <dt><code>=CALCBLOC_TAX(country, gross, [region], [year], [options])</code></dt>
+        <dd>Annual income tax (no social security). <code>=CALCBLOC_TAX("canada", 85000, "on")</code></dd>
+        <dt><code>=CALCBLOC_EMPLOYER_COST(country, salary, [region], [year], [options])</code></dt>
+        <dd>Salary plus employer on-costs. <code>=CALCBLOC_EMPLOYER_COST("uk", 40000)</code></dd>
+        <dt><code>=CALCBLOC_RATE(country, section, label, [year], [region])</code></dt>
+        <dd>One figure from the tax tables. <code>=CALCBLOC_RATE("norway", "general-income", "Individuals")</code></dd>
+        <dt><code>=CALCBLOC_BAND_TAX(country, taxable_income, [section], [year], [region])</code></dt>
+        <dd>Tax from a band schedule, before allowances and credits. <code>=CALCBLOC_BAND_TAX("austria", 40000)</code></dd>
+        <dt><code>=CALCBLOC_COUNTRIES()</code></dt>
+        <dd>Every country with its tax year and what can be calculated.</dd>
+      </dl>
+      <p class="hint">Pass a range (e.g. <code>A2:A50</code>) as the salary to fill a column with one formula. Results are cached for up to 6 hours. Calculations use the current tax year; earlier years are available as tables.</p>
+      <p class="hint">Figures are estimates for planning, not tax advice. Sources and notes: <a href="https://calcbloc.com/data" target="_blank" rel="noopener">calcbloc.com/data</a> · API: <a href="https://calcbloc.com/developers" target="_blank" rel="noopener">calcbloc.com/developers</a></p>
+    </section>
+
+    <script>
+      var INITIAL_TAB = "<?= tab ?>";
+      var state = { countries: [], settings: null };
+
+      function $(id) { return document.getElementById(id); }
+      function run() { return google.script.run; }
+
+      function showTab(name) {
+        ["insert", "settings", "help"].forEach(function (t) {
+          $(t).hidden = t !== name;
+          $("tab-" + t).setAttribute("aria-selected", t === name ? "true" : "false");
+        });
+      }
+      ["insert", "settings", "help"].forEach(function (t) { $("tab-" + t).addEventListener("click", function () { showTab(t); }); });
+
+      function status(id, text, kind) {
+        var el = $(id);
+        el.hidden = !text;
+        el.className = "status" + (kind ? " " + kind : "");
+        el.textContent = text || "";
+      }
+
+      function option(sel, value, text, selected) {
+        var o = document.createElement("option");
+        o.value = value;
+        o.textContent = text;
+        if (selected) o.selected = true;
+        sel.appendChild(o);
+      }
+
+      function country(code) {
+        for (var i = 0; i < state.countries.length; i++) if (state.countries[i].code === code) return state.countries[i];
+        return null;
+      }
+
+      function fillYearsAndRegions() {
+        var c = country($("t-country").value);
+        var y = $("t-year"), r = $("t-region");
+        y.innerHTML = ""; r.innerHTML = "";
+        if (!c) return;
+        c.years.forEach(function (yr) { option(y, yr, yr + (yr === c.currentYear ? " (current)" : "")); });
+        option(r, "", "National table");
+        c.regions.forEach(function (rg) { option(r, rg.code, rg.name); });
+        $("t-region-wrap").hidden = c.regions.length === 0;
+        if (state.settings && state.settings.defaultCountry === c.code && state.settings.defaultRegion) r.value = state.settings.defaultRegion;
+      }
+
+      function showKeyState() {
+        var s = state.settings;
+        $("s-key-state").textContent = s.hasKey
+          ? "Key saved: " + s.keyHint + (s.keyShared ? " (shared with this spreadsheet's formulas)" : "")
+          : s.sharedKeyPresent ? "No personal key. Formulas in this spreadsheet use a key shared by a collaborator." : "No key saved: requests are anonymous.";
+        $("s-share").checked = !!s.keyShared;
+        $("s-remove").disabled = !s.hasKey;
+        $("s-share").disabled = !s.hasKey && !$("s-key").value;
+      }
+
+      function init(res) {
+        if (!res.ok) { status("t-status", res.message, "error"); status("s-status", res.message, "error"); return; }
+        state.countries = res.data.countries;
+        state.settings = res.data.settings;
+        var tc = $("t-country"), sc = $("s-country");
+        state.countries.forEach(function (c) {
+          option(tc, c.code, c.name, c.code === (state.settings.defaultCountry || "us"));
+          option(sc, c.code, c.name, c.code === state.settings.defaultCountry);
+        });
+        $("s-region").value = state.settings.defaultRegion || "";
+        fillYearsAndRegions();
+        showKeyState();
+      }
+
+      $("t-country").addEventListener("change", fillYearsAndRegions);
+      $("s-key").addEventListener("input", function () { $("s-share").disabled = !state.settings.hasKey && !$("s-key").value; });
+
+      $("t-insert").addEventListener("click", function () {
+        var btn = this;
+        btn.disabled = true;
+        status("t-status", "Fetching the table…");
+        run()
+          .withSuccessHandler(function (res) {
+            btn.disabled = false;
+            if (!res.ok) return status("t-status", res.message, "error");
+            status("t-status", "Inserted sheet \"" + res.data.sheetName + "\" with " + res.data.rows + " rows. Source page: " + res.data.pageUrl, "ok");
+          })
+          .withFailureHandler(function (e) { btn.disabled = false; status("t-status", String(e && e.message || e), "error"); })
+          .sidebarInsertTable({ country: $("t-country").value, year: $("t-year").value, region: $("t-region").value });
+      });
+
+      function save(extra) {
+        var input = { defaultCountry: $("s-country").value, defaultRegion: $("s-region").value.trim(), shareKey: $("s-share").checked };
+        var key = $("s-key").value.trim();
+        if (key) input.apiKey = key;
+        for (var k in extra) input[k] = extra[k];
+        status("s-status", key ? "Checking the key with calcbloc.com…" : "Saving…");
+        run()
+          .withSuccessHandler(function (res) {
+            if (!res.ok) return status("s-status", res.message, "error");
+            state.settings = res.data.settings;
+            $("s-key").value = "";
+            showKeyState();
+            status("s-status", res.data.message, "ok");
+          })
+          .withFailureHandler(function (e) { status("s-status", String(e && e.message || e), "error"); })
+          .sidebarSaveSettings(input);
+      }
+      $("s-save").addEventListener("click", function () { save({}); });
+      $("s-remove").addEventListener("click", function () { $("s-key").value = ""; save({ removeKey: true, shareKey: false }); });
+      $("s-clear").addEventListener("click", function () {
+        run()
+          .withSuccessHandler(function (res) { status("s-status", res.ok ? res.data.message : res.message, res.ok ? "ok" : "error"); })
+          .sidebarClearCache();
+      });
+
+      showTab(INITIAL_TAB === "settings" || INITIAL_TAB === "help" ? INITIAL_TAB : "insert");
+      run().withSuccessHandler(init).withFailureHandler(function (e) { status("t-status", String(e && e.message || e), "error"); }).sidebarInit();
+    </script>
+  </body>
+</html>
