@@ -9,15 +9,15 @@ export const HTML_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "app
 
 /**
  * Fresh mocks for each test: a fake API answering from fixtures, Apps Script services, and a controllable clock.
- * The add-on needs an API key, so TEST_KEY is saved in the user's properties unless key: null is passed.
+ * No API key is saved unless `key` is given (the add-on works without one); `anonymousPerDay` lowers the fake
+ * API's no-key daily allowance.
  */
-export function setup(opts: { limits?: boolean; key?: string | null } = {}) {
+export function setup(opts: { limits?: boolean; key?: string; anonymousPerDay?: number } = {}) {
   const clock = { t: Date.UTC(2026, 10, 11, 12), now() { return this.t; } };
-  const api = createFakeApi({ keys: [TEST_KEY], limits: opts.limits ?? false, clock });
+  const api = createFakeApi({ keys: [TEST_KEY], limits: opts.limits ?? false, clock, anonymousPerDay: opts.anonymousPerDay });
   const gas = createGas({ handler: api.handler, whitelist: WHITELIST, htmlDir: HTML_DIR, clock });
   installGlobals(gas.globals);
-  const key = opts.key === undefined ? TEST_KEY : opts.key;
-  if (key) gas.userProps.setProperty("calcbloc.apiKey", key);
+  if (opts.key) gas.userProps.setProperty("calcbloc.apiKey", opts.key);
   return { api, gas, clock };
 }
 

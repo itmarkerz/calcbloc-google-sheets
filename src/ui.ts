@@ -1,8 +1,8 @@
-import { checkKey, noKeyMessage } from "./api";
+import { checkKey, isKeyPrompt } from "./api";
 import { cacheClear } from "./cache";
 import { appLink, CREDIT, DATA_URL, DEVELOPERS_URL, KEYS_URL, VERSION } from "./config";
-import { getCountries } from "./countries";
-import { currentApiKey, getSettingsView, saveSettings, validateKey, type SettingsInput } from "./settings";
+import { getCountries, type Country } from "./countries";
+import { getSettingsView, saveSettings, validateKey, type SettingsInput } from "./settings";
 import { insertTaxTable, type InsertRequest } from "./sheet";
 import { errorMessage } from "./util";
 
@@ -31,35 +31,43 @@ export function showSidebar(tab: "insert" | "settings" | "help"): void {
   SpreadsheetApp.getUi().showSidebar(html);
 }
 
-type Reply<T> = { ok: true; data: T } | { ok: false; message: string };
+/** needsKey: the free allowance without a key is used up, so the sidebar shows its "Add your free API key" card. */
+type Reply<T> = { ok: true; data: T } | { ok: false; message: string; needsKey?: boolean };
 
 function reply<T>(fn: () => T): Reply<T> {
   try {
     return { ok: true, data: fn() };
   } catch (e) {
-    return { ok: false, message: errorMessage(e) };
+    return isKeyPrompt(e) ? { ok: false, message: errorMessage(e), needsKey: true } : { ok: false, message: errorMessage(e) };
   }
 }
 
 /**
  * Everything the sidebar needs to draw itself: settings (key masked), countries with years and regions, links.
- * Without an API key the country list is not fetched: the sidebar opens on Settings with the set-up message.
+ * If the country list cannot be fetched (for example the free allowance without a key is used up), the settings
+ * still load so a key can be added; countriesError says why and needsKey asks for a free key.
  */
 export function sidebarInit() {
   return reply(() => {
-    const needsKey = !currentApiKey();
+    let countries: Pick<Country, "code" | "name" | "currentYear" | "years" | "regions" | "tablesOnly" | "tablesPageUrl">[] = [];
+    let countriesError = "";
+    let needsKey = false;
+    try {
+      countries = getCountries()
+        .map((c) => ({ code: c.code, name: c.name, currentYear: c.currentYear, years: c.years, regions: c.regions, tablesOnly: c.tablesOnly, tablesPageUrl: c.tablesPageUrl }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+    } catch (e) {
+      countriesError = errorMessage(e);
+      needsKey = isKeyPrompt(e);
+    }
     return {
       version: VERSION,
       credit: CREDIT,
       links: { data: appLink(DATA_URL), developers: appLink(DEVELOPERS_URL), keys: appLink(KEYS_URL) },
       settings: getSettingsView(),
       needsKey,
-      setupMessage: needsKey ? noKeyMessage() : "",
-      countries: needsKey
-        ? []
-        : getCountries()
-            .map((c) => ({ code: c.code, name: c.name, currentYear: c.currentYear, years: c.years, regions: c.regions, tablesOnly: c.tablesOnly, tablesPageUrl: c.tablesPageUrl }))
-            .sort((a, b) => a.name.localeCompare(b.name)),
+      countriesError,
+      countries,
     };
   });
 }

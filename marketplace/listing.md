@@ -36,11 +36,11 @@ Draft text and assets for the Marketplace SDK **Store listing** and **App config
 > **Coverage**
 > Take-home pay calculations for the United States (all states), United Kingdom, Canada, Australia, New Zealand, Ireland, India, Germany, Spain, the Netherlands, France and Singapore. Tax tables for these and for countries such as Norway, Sweden, Denmark, Austria, Switzerland, Poland, Italy and Portugal.
 >
-> **Free, with a free API key**
-> The add-on is free. It needs a free CalcBloc API key: get one at calcbloc.com/developers/keys (sign up with your email address; the key is shown straight away) and paste it in Extensions > CalcBloc > Settings and API key. The key allows 5,000 requests a day, and results are cached so a sheet does not repeat requests. Until a key is saved, the add-on sends nothing and shows a set-up message instead.
+> **Free, no sign-up needed**
+> The add-on is free and works straight away without signing up, using the CalcBloc API's free allowance (50 requests a day per internet address). Google's servers are shared by many users, so that allowance can run out sooner; the add-on then asks you to add a free API key. Get one at calcbloc.com/developers/keys (sign up with your email address; the key is shown straight away) and paste it in Extensions > CalcBloc > Settings and API key for 5,000 requests a day. Results are cached so a sheet does not repeat requests.
 >
 > **Privacy**
-> The add-on sends only the inputs of its own formulas (country, region, year, salary) and your API key to calcbloc.com. It does not read your other cells or files, and it has no ads or tracking.
+> The add-on sends only the inputs of its own formulas (country, region, year, salary), and your API key if you saved one, to calcbloc.com. It does not read your other cells or files, and it has no ads or tracking.
 >
 > Published by itmarkerz technologies (itmarkerz.co.in), which operates CalcBloc.
 >
@@ -48,7 +48,7 @@ Draft text and assets for the Marketplace SDK **Store listing** and **App config
 
 **Category:** Business Tools, subcategory Accounting & Finance (pick the closest available in the console).
 
-**Pricing:** Free of charge (requires a free CalcBloc API key from https://calcbloc.com/developers/keys).
+**Pricing:** Free of charge. Works without sign-up; a free CalcBloc API key from https://calcbloc.com/developers/keys raises the limit to 5,000 requests a day.
 
 **Developer / publisher name:** itmarkerz technologies (https://itmarkerz.co.in). CalcBloc is the product name.
 
@@ -64,7 +64,7 @@ Draft text and assets for the Marketplace SDK **Store listing** and **App config
 | Screenshot 2 | 1280x800 | The Insert tax table sidebar next to an inserted table (US federal or Norway), credit line and source URLs visible |
 | Screenshot 3 | 1280x800 | Formula autocomplete showing the `CALCBLOC_NET` help text |
 | Screenshot 4 | 1280x800 | Employer cost comparison across countries with `CALCBLOC_EMPLOYER_COST` |
-| Screenshot 5 | 1280x800 | Settings sidebar (API key masked, default country); optionally the first-run "Add your free API key" notice |
+| Screenshot 5 | 1280x800 | Settings sidebar (API key masked, default country); optionally the "Add your free API key" prompt shown once the free allowance is used up |
 | Promo video (optional) | YouTube | 60 to 90 seconds; can reuse the OAuth verification video |
 
 Screenshots must be captured in real Google Sheets (at least one must show the add-on inside Sheets). The HTML previews produced by `npm run demo -- --html` are for review only.
@@ -94,12 +94,12 @@ Not requested: Drive, `spreadsheets` (all spreadsheets), user email or profile, 
 
 **Justification text for the verification form** (sensitive-scope section):
 
-> CalcBloc for Google Sheets adds custom functions that return take-home pay, income tax and tax rates, and a sidebar that inserts official tax tables. `script.external_request` is needed to fetch this public tax data from our own API at https://calcbloc.com/api/v1 (the manifest's urlFetchWhitelist allows only that address); the request contains only the country, region, year and salary amount written in the user's formula, plus the user's CalcBloc API key in a header. `script.container.ui` is needed to show the add-on menu and the sidebar where users insert a tax table and save their CalcBloc API key (required before the add-on makes any request). `spreadsheets.currentonly` lets the add-on write the requested tax table into a new sheet of the spreadsheet the user has open; it never reads other cells, spreadsheets or Drive files. No Google user data leaves Google except the formula inputs listed above.
+> CalcBloc for Google Sheets adds custom functions that return take-home pay, income tax and tax rates, and a sidebar that inserts official tax tables. `script.external_request` is needed to fetch this public tax data from our own API at https://calcbloc.com/api/v1 (the manifest's urlFetchWhitelist allows only that address); the request contains only the country, region, year and salary amount written in the user's formula, plus the user's CalcBloc API key in a header if they saved one. `script.container.ui` is needed to show the add-on menu and the sidebar where users insert a tax table and save their optional CalcBloc API key. `spreadsheets.currentonly` lets the add-on write the requested tax table into a new sheet of the spreadsheet the user has open; it never reads other cells, spreadsheets or Drive files. No Google user data leaves Google except the formula inputs listed above.
 
 ## OAuth verification notes
 
 - **Expected classification.** `spreadsheets.currentonly` is expected to be non-sensitive. `script.external_request` and `script.container.ui` are expected to appear as sensitive in the Google Auth Platform "Data access" page; confirm when adding them. Sensitive scopes on an external (public) app mean **OAuth verification** (brand verification plus sensitive-scope review) before the Marketplace listing can go public. No restricted scopes are used, so no CASA security assessment.
 - **Before submitting verification:** verify `calcbloc.com` in Google Search Console with the same Google account; publish the privacy policy and terms on that domain; make sure the home page links to the privacy policy; use an app name and logo that match the listing; add a support email.
-- **Demo video** (unlisted YouTube): show the OAuth consent screen with the app name and the three scopes, then saving an API key in Settings, then each scope in use: a formula returning a value (external request), the sidebar opening (container UI), and Insert tax table writing a sheet (currentonly). Show the browser address bar with the OAuth client id during the consent screen.
+- **Demo video** (unlisted YouTube): show the OAuth consent screen with the app name and the three scopes, then each scope in use without a key: a formula returning a value (external request), the sidebar opening (container UI), and Insert tax table writing a sheet (currentonly); optionally saving a free API key in Settings. Show the browser address bar with the OAuth client id during the consent screen.
 - **Unverified state.** Until verification completes, test users see the "Google hasn't verified this app" screen; add reviewers as test users on the consent screen.
 - **Typical timing** is a few days to several weeks, plus Marketplace review after that.

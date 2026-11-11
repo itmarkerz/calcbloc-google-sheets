@@ -8,15 +8,15 @@ Steps to take the add-on from this repository to a public Marketplace listing. *
 - [ ] Visibility: **Public** (reviewed by Google). This cannot be changed after it is saved.
 - [ ] App name and icon (must match across consent screen, listing and add-on menu).
 - [x] Privacy policy and terms live at `https://calcbloc.com/google-sheets/privacy` and `https://calcbloc.com/google-sheets/terms` (11 November 2026). Keep them and PRIVACY.md / TERMS.md saying the same thing. Help page (`/google-sheets`) still to decide.
-- [x] API access from Apps Script: decided 11 November 2026 that the add-on **requires a free API key** (Google's outbound addresses are shared, so a no-key allowance would be used up by others). Without a key it makes no request and shows a set-up message with the key link.
-- [ ] Marketplace review expects "clear value without sign-up" and "no errors on first use": the first-run set-up message (sidebar notice, cell message with the key link) must make the free-key step obvious. Mention the key requirement in the listing (done in the draft) and in the reviewer notes, and give reviewers a working test key.
+- [x] API access from Apps Script: decided 11 November 2026 that the add-on **works without a key** up to the API's anonymous allowance (50 requests a day, 5 a minute per internet address) and, when a keyless request gets HTTP 429 or `X-RateLimit-Remaining: 0`, asks for a free API key (5,000 a day, 60 a minute) with the keys link and the Settings path. The message notes that Google's shared servers can use up the free allowance sooner.
+- [ ] Marketplace review expects "clear value without sign-up" and "no errors on first use": the add-on works on first use without a key. Say in the reviewer notes that a key is optional, and give reviewers a working test key for heavy testing, since the shared allowance may already be used up on Google's servers.
 
 ## 1. Code readiness
 
 - [ ] `npm install && npm test` passes (build + all tests).
 - [ ] Review `apps-script/appsscript.json`: V8, three scopes, `urlFetchWhitelist: ["https://calcbloc.com/api/"]`, `exceptionLogging: NONE` (switch to `STACKDRIVER` only if error logs are wanted; they could contain request URLs).
 - [ ] Bump `VERSION` in `src/config.ts` and `package.json` for the release.
-- [ ] Manual test in a real sheet (README, "Test in your own sheet"), including a Test deployment as an Editor add-on, in a second Google account that is not the owner (checks the shared-key path), and with no key (checks the set-up message: cells and sidebar point to calcbloc.com/developers/keys, and no request is made).
+- [ ] Manual test in a real sheet (README, "Test in your own sheet"), including a Test deployment as an Editor add-on, in a second Google account that is not the owner (checks the shared-key path), and with no key (formulas work; once the free allowance is used up, cells and the sidebar say "Add your free API key" with the calcbloc.com/developers/keys link and the Settings path).
 
 ## 2. Google Cloud project
 
@@ -35,7 +35,7 @@ Steps to take the add-on from this repository to a public Marketplace listing. *
 
 - [x] Publish the privacy policy and terms pages on calcbloc.com (from PRIVACY.md and TERMS.md). Still check that the home page or footer links to them.
 - [ ] Record the demo video (see listing notes) and upload it to YouTube as unlisted.
-- [ ] Reviewer notes: say that the add-on needs a free CalcBloc API key and include a test key for the review account (revoke it afterwards).
+- [ ] Reviewer notes: say that the add-on works without a key (50 requests a day, shared across Google's servers) and asks for a free key when that runs out; include a test key for the review account for heavy testing (revoke it afterwards).
 - [ ] Submit for verification (brand + sensitive scopes). Answer follow-up emails from the Google Trust and Safety team.
 - [ ] Wait for approval before switching the listing to public (unverified apps show a warning and have a 100-user cap).
 
@@ -60,7 +60,7 @@ Steps to take the add-on from this repository to a public Marketplace listing. *
 
 ## 8. Submit and review
 
-- [ ] Check the Marketplace review criteria: menu built with `createAddonMenu()` and working when the add-on is not yet enabled in a file (AuthMode.NONE), no errors on first use, clear value (the free-key step is explained on first use), accurate listing and screenshots, working links.
+- [ ] Check the Marketplace review criteria: menu built with `createAddonMenu()` and working when the add-on is not yet enabled in a file (AuthMode.NONE), no errors on first use, clear value without sign-up (the free-key prompt appears only once the free allowance is used up), accurate listing and screenshots, working links.
 - [ ] Click **Publish**. Google reviews public listings; expect several days to a few weeks. Fix and resubmit if asked.
 - [ ] After approval: test install from the Marketplace in a fresh account; link the listing from calcbloc.com/developers and calcbloc.com/data.
 

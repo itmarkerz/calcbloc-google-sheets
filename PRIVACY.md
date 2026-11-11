@@ -24,13 +24,11 @@ Custom functions such as `=CALCBLOC_NET("uk", 40000)` receive only the values yo
 
 ## What is sent to calcbloc.com
 
-The add-on needs a free CalcBloc API key. Until you save one (or a collaborator shares theirs with the spreadsheet), it sends nothing to calcbloc.com: formulas and the sidebar show a set-up message instead.
-
 When a formula or the sidebar needs data, the add-on sends an HTTPS request to the CalcBloc API containing:
 
 - the country and, where you give them, the region, the tax year (for tax tables) and any options written in the formula;
 - for `CALCBLOC_NET`, `CALCBLOC_TAX` and `CALCBLOC_EMPLOYER_COST`, the salary amount in the formula. `CALCBLOC_RATE` and `CALCBLOC_BAND_TAX` work from the downloaded tax table, so the amount you give `CALCBLOC_BAND_TAX` is not sent;
-- your CalcBloc API key, in a request header (never in the address);
+- your CalcBloc API key, if you saved one, in a request header (never in the address);
 - the add-on's name and version number, in a request header.
 
 The country, amount and options are part of the request address (for example `/api/v1/net-salary?country=uk&salary=40000`). When you save an API key, the add-on makes one test request with it to check that it works.
@@ -39,11 +37,11 @@ Requests are made by Google's servers, not by your computer, so CalcBloc does no
 
 ## What CalcBloc records
 
-- **API request log.** One line per request with the time, the endpoint, the country, the response status and error code, the response time and the public id of the API key ("anon" if a key is not recognised). It does not include the amounts, the rest of the request address, the IP address or the key itself.
-- **Rate limits.** Request counters are kept per API key id. They expire at the end of the minute or the day (UTC) they count.
+- **API request log.** One line per request with the time, the endpoint, the country, the response status and error code, the response time and the public id of the API key (or "anon"). It does not include the amounts, the rest of the request address, the IP address or the key itself.
+- **Rate limits.** Request counters are kept per API key id or, without a key, per shortened one-way hash of the requesting address (a Google server). They expire at the end of the minute or the day (UTC) they count.
 - **Web server logs.** Our web server keeps a standard access log of requests to calcbloc.com. Each entry includes the full request address, so the inputs listed above (such as the country and the salary amount), together with the requesting Google server's IP address, the time and the user-agent. Requests also pass through Cloudflare, which protects and delivers the site. These logs are used only to run, secure and troubleshoot the service; they cannot be linked to your Google account. Retention is described in the CalcBloc [privacy policy](https://calcbloc.com/privacy?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss).
 
-When you sign up for a free API key on calcbloc.com, the details you give at signup are covered by the [API and data terms](https://calcbloc.com/developers/terms?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss) and the CalcBloc privacy policy. The add-on does not send them.
+If you signed up for a free API key on calcbloc.com, the details you gave at signup are covered by the [API and data terms](https://calcbloc.com/developers/terms?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss) and the CalcBloc privacy policy. The add-on does not send them.
 
 ## What is stored, and where
 
@@ -58,7 +56,7 @@ The add-on stores data only with Google's Apps Script services, in your Google a
 | Country list and tax tables (public data) | The add-on's shared cache | Up to 6 hours |
 | Tax tables you insert | A new sheet in your spreadsheet | Until you delete the sheet |
 
-The sidebar never sends your saved key back to the browser; it shows only its last four characters. The add-on keeps no logs of its own, and error reporting to Google Cloud Logging is turned off in its manifest. The sidebar loads Google's standard add-on stylesheet from Google and nothing from calcbloc.com; its links open calcbloc.com in your browser only when you click them, and the website's privacy policy then applies. Those links (in the sidebar and in inserted tables) carry a referral tag naming the add-on (`utm_source=calcbloc-google-sheets&utm_medium=app&utm_campaign=itmarkerz-oss`) so CalcBloc can see which product a visit came from; the tag contains no personal or browsing data.
+The sidebar never sends your saved key back to the browser; it shows only its last four characters. The add-on keeps no logs of its own, and error reporting to Google Cloud Logging is turned off in its manifest. The sidebar loads Google's standard add-on stylesheet from Google and nothing from calcbloc.com; its links open calcbloc.com in your browser only when you click them, and the website's privacy policy then applies.
 
 ## What the add-on does not do
 
@@ -71,7 +69,7 @@ The add-on's use of information received from Google APIs adheres to the [Google
 
 ## Your choices
 
-- Remove your key: **Extensions > CalcBloc > Settings and API key > Remove key**. With no key (yours, or one a collaborator shared with the spreadsheet) the add-on sends no requests.
+- Remove your key: **Extensions > CalcBloc > Settings and API key > Remove key**.
 - Clear cached results: **Settings and API key > Clear cached results**. Cached answers become unreachable at once.
 - Uninstall: in Google Sheets, **Extensions > Add-ons > Manage add-ons**, then remove CalcBloc. You can also remove the add-on's access at [myaccount.google.com/permissions](https://myaccount.google.com/permissions).
 - Revoke or replace an API key: email [hello@calcbloc.com](mailto:hello@calcbloc.com) from the address you signed up with and quote the key id (it starts with `k_`), as described on the [API key page](https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss).
@@ -88,4 +86,4 @@ Changes to this policy will be published on [calcbloc.com/google-sheets/privacy]
 
 Questions or requests about this policy: [hello@calcbloc.com](mailto:hello@calcbloc.com), or see our [contact page](https://calcbloc.com/contact?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss).
 
-See also the add-on's [terms of service](TERMS.md), and the CalcBloc website [privacy policy](https://calcbloc.com/privacy?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss) and [terms of use](https://calcbloc.com/terms?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss). CalcBloc is a product of itmarkerz technologies.
+See also the add-on's [terms of service](TERMS.md), and the CalcBloc website [privacy policy](https://calcbloc.com/privacy?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss) and [terms of use](https://calcbloc.com/terms?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss). CalcBloc is a product of [itmarkerz technologies](https://itmarkerz.co.in/?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss).

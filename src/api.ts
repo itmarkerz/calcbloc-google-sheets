@@ -1,4 +1,4 @@
-import { cacheGetMany, cachePut, type CacheScope } from "./cache";
+import { cacheGet, cacheGetMany, cachePut, type CacheScope } from "./cache";
 import { API_BASE, appLink, CACHE_TTL_SECONDS, ERROR_TTL_SECONDS, KEYS_URL, MAX_NEW_REQUESTS_PER_CALL, VERSION } from "./config";
 import { currentApiKey } from "./settings";
 import { CalcBlocError, errorMessage } from "./util";
@@ -37,23 +37,39 @@ export function buildUrl(req: ApiRequest): string {
   return `${API_BASE}${req.path}${qs ? `?${qs}` : ""}`;
 }
 
+function waitText(secs: number): string {
+  return secs > 5400 ? ` Try again in about ${Math.round(secs / 3600)} hours.` : secs > 0 ? ` Try again in about ${Math.max(1, Math.round(secs / 60))} min.` : "";
+}
+
 /**
- * Shown instead of a result while no API key is set up. The add-on needs a free key: Google's servers share
- * internet addresses, so the API's small no-key allowance would be used up by other Apps Script users.
+ * Shown when the API's free allowance without a key (50 requests a day, 5 a minute, per internet address) is used
+ * up. The add-on works without a key until then; this asks for a free key and says where to paste it.
  */
-export function noKeyMessage(): string {
-  return `CalcBloc needs a free API key. Get one at ${appLink(KEYS_URL)} and paste it in Extensions > CalcBloc > Settings and API key. In a spreadsheet someone else owns, also tick "Let formulas in this spreadsheet use my key".`;
+export function addKeyMessage(waitSeconds = 0): string {
+  return `Add your free API key: the free requests without a key (50 a day, 5 a minute, per internet address) are used up.${waitText(waitSeconds)} Google's servers share internet addresses between many users, so this free allowance can run out sooner than your own use explains. Get a free key (5,000 requests a day) at ${appLink(KEYS_URL)} and paste it in Extensions > CalcBloc > Settings and API key.`;
 }
 
-/** Throws the set-up message when no key is configured. Called before any cache or network access. */
-export function requireKey(): void {
-  if (!currentApiKey()) throw new CalcBlocError(noKeyMessage(), "api_key_missing");
-}
-
-function rateLimitMessage(retryAfter: string | undefined): string {
+function rateLimitMessage(hasKey: boolean, retryAfter: string | undefined): string {
   const secs = retryAfter && /^\d+$/.test(retryAfter) ? Number(retryAfter) : 0;
-  const wait = secs > 5400 ? ` Try again in about ${Math.round(secs / 3600)} hours.` : secs > 0 ? ` Try again in about ${Math.max(1, Math.round(secs / 60))} min.` : "";
-  return `CalcBloc API limit reached for your key (5,000 a day, 60 a minute).${wait}`;
+  return hasKey ? `CalcBloc API limit reached for your key (5,000 a day, 60 a minute).${waitText(secs)}` : addKeyMessage(secs);
+}
+
+/** True for the error a keyless request gets once the free allowance is used up (the add-on then asks for a key). */
+export function isKeyPrompt(e: unknown): boolean {
+  return e instanceof CalcBlocError && e.code === "rate_limited" && !currentApiKey();
+}
+
+/**
+ * Set in the spreadsheet's cache when a request without a key is refused (429) or answered with
+ * X-RateLimit-Remaining: 0, so further keyless formulas show the key prompt for a minute instead of each
+ * calling the API again.
+ */
+const NO_KEY_EXHAUSTED = "nokey-exhausted:v1";
+/** How long keyless requests are held after the free allowance runs out: short, as Google's addresses vary. */
+const NO_KEY_HOLD_SECONDS = 60;
+
+function digits(v: string | undefined): number | undefined {
+  return v !== undefined && /^\d+$/.test(v.trim()) ? Number(v.trim()) : undefined;
 }
 
 function header(headers: Record<string, unknown>, name: string): string | undefined {
@@ -61,7 +77,7 @@ function header(headers: Record<string, unknown>, name: string): string | undefi
   return k ? String(headers[k]) : undefined;
 }
 
-function toResult<T>(resp: GoogleAppsScript.URL_Fetch.HTTPResponse): ApiResult<T> {
+function toResult<T>(resp: GoogleAppsScript.URL_Fetch.HTTPResponse, hasKey: boolean): ApiResult<T> {
   const status = resp.getResponseCode();
   const body = resp.getContentText();
   let json: unknown;
@@ -74,8 +90,10 @@ function toResult<T>(resp: GoogleAppsScript.URL_Fetch.HTTPResponse): ApiResult<T
   const err = (json as ErrorBody | undefined)?.error;
   if (status === 429) {
     const retry = header(resp.getAllHeaders() as Record<string, unknown>, "Retry-After");
-    return { ok: false, status, code: "rate_limited", message: rateLimitMessage(retry), retryAfter: retry && /^\d+$/.test(retry) ? Number(retry) : undefined };
+    return { ok: false, status, code: "rate_limited", message: rateLimitMessage(hasKey, retry), retryAfter: retry && /^\d+$/.test(retry) ? Number(retry) : undefined };
   }
+  if (status === 401 && err?.code === "api_key_required")
+    return { ok: false, status, code: err.code, message: `${err.message ?? "This endpoint needs an API key."} Add your free API key (${appLink(KEYS_URL)}) in Extensions > CalcBloc > Settings and API key.` };
   if (status === 401 || status === 403)
     return { ok: false, status, code: err?.code ?? "unauthorized", message: `${err?.message ?? "The API key was refused."} Check the key in Extensions > CalcBloc > Settings.` };
   if (err?.message) return { ok: false, status, code: err.code ?? "error", message: err.message };
@@ -83,19 +101,17 @@ function toResult<T>(resp: GoogleAppsScript.URL_Fetch.HTTPResponse): ApiResult<T
 }
 
 function fetchParams(key: string): GoogleAppsScript.URL_Fetch.URLFetchRequestOptions {
-  const headers: Record<string, string> = { Accept: "application/json", "X-CalcBloc-Client": `google-sheets/${VERSION}`, "X-API-Key": key };
+  const headers: Record<string, string> = { Accept: "application/json", "X-CalcBloc-Client": `google-sheets/${VERSION}` };
+  if (key) headers["X-API-Key"] = key;
   return { method: "get", muteHttpExceptions: true, followRedirects: true, headers };
 }
 
 /**
  * Fetches several API URLs, answering from the cache where possible and fetching the rest in parallel
  * (UrlFetchApp.fetchAll). Successful answers and stable errors are cached; rate limits and outages are not.
- * Without an API key nothing is fetched or read from the cache: every result is the set-up message.
  */
 export function getMany<T>(reqs: ApiRequest[], scope: CacheScope): ApiResult<T>[] {
   const urls = reqs.map(buildUrl);
-  const key = currentApiKey();
-  if (!key) return urls.map(() => ({ ok: false, status: 0, code: "api_key_missing", message: noKeyMessage() }));
   const cached = cacheGetMany<ApiResult<T>>(scope, urls);
   const todo = [...new Set(urls.filter((u) => cached[u] === undefined))];
   const fresh = new Map<string, ApiResult<T>>();
@@ -104,7 +120,12 @@ export function getMany<T>(reqs: ApiRequest[], scope: CacheScope): ApiResult<T>[
   for (const u of todo.slice(MAX_NEW_REQUESTS_PER_CALL))
     fresh.set(u, { ok: false, status: 0, code: "deferred", message: `Not fetched yet: more than ${MAX_NEW_REQUESTS_PER_CALL} new values in one formula. Recalculate (or split the range) to fill the rest.` });
 
-  if (allowed.length) {
+  const key = allowed.length ? currentApiKey() : "";
+  const held = allowed.length && !key ? cacheGet<{ retryAfter: number }>("document", NO_KEY_EXHAUSTED) : undefined;
+  if (held) {
+    // The free allowance without a key ran out moments ago: ask for a key without calling the API again.
+    for (const u of allowed) fresh.set(u, { ok: false, status: 429, code: "rate_limited", message: addKeyMessage(held.retryAfter), retryAfter: held.retryAfter });
+  } else if (allowed.length) {
     const opts = fetchParams(key);
     let responses: GoogleAppsScript.URL_Fetch.HTTPResponse[] | null = null;
     let failure = "";
@@ -115,7 +136,7 @@ export function getMany<T>(reqs: ApiRequest[], scope: CacheScope): ApiResult<T>[
     }
     allowed.forEach((u, i) => {
       const r: ApiResult<T> = responses
-        ? toResult<T>(responses[i])
+        ? toResult<T>(responses[i], !!key)
         : { ok: false, status: 0, code: "network", message: `Could not reach the CalcBloc API (${failure.slice(0, 120)}). Try again later.` };
       fresh.set(u, r);
       if (r.ok) cachePut(scope, u, r, CACHE_TTL_SECONDS);
@@ -124,6 +145,17 @@ export function getMany<T>(reqs: ApiRequest[], scope: CacheScope): ApiResult<T>[
       // Retry-After seconds, capped at a minute so cells fill in soon after a per-minute limit resets.
       else if (r.code === "rate_limited") cachePut(scope, u, r, Math.min(60, Math.max(1, r.retryAfter ?? 60)));
     });
+    if (!key && responses) {
+      // Free allowance without a key used up (refused, or the last free request answered): hold keyless calls.
+      let exhausted: number | undefined;
+      responses.forEach((resp, i) => {
+        const r = fresh.get(allowed[i])!;
+        const hs = resp.getAllHeaders() as Record<string, unknown>;
+        if (!r.ok && r.code === "rate_limited") exhausted = Math.max(exhausted ?? 0, r.retryAfter ?? NO_KEY_HOLD_SECONDS);
+        else if (digits(header(hs, "X-RateLimit-Remaining")) === 0) exhausted = Math.max(exhausted ?? 0, digits(header(hs, "X-RateLimit-Reset")) ?? NO_KEY_HOLD_SECONDS);
+      });
+      if (exhausted !== undefined) cachePut("document", NO_KEY_EXHAUSTED, { retryAfter: exhausted }, NO_KEY_HOLD_SECONDS);
+    }
   }
   return urls.map((u) => cached[u] ?? fresh.get(u)!);
 }
@@ -139,9 +171,10 @@ export function getJson<T>(req: ApiRequest, scope: CacheScope): T {
 export function checkKey(candidate: string): { ok: boolean; message: string; dailyLimit?: number } {
   try {
     const resp = UrlFetchApp.fetch(buildUrl({ path: "/countries" }), fetchParams(candidate));
-    const r = toResult<unknown>(resp);
+    const r = toResult<unknown>(resp, true);
     const limit = Number(header(resp.getAllHeaders() as Record<string, unknown>, "X-RateLimit-Limit"));
     if (!r.ok) return { ok: false, message: r.message };
+    if (Number.isFinite(limit) && limit > 0 && limit <= 50) return { ok: false, dailyLimit: limit, message: "The API answered, but with the no-key limit (50 a day). The key was not recognised." };
     return { ok: true, dailyLimit: Number.isFinite(limit) ? limit : undefined, message: Number.isFinite(limit) ? `Key works: ${limit.toLocaleString("en-US")} requests a day.` : "Key works." };
   } catch (e) {
     return { ok: false, message: `Could not reach the CalcBloc API: ${errorMessage(e).slice(0, 120)}` };

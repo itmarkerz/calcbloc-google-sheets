@@ -2,8 +2,8 @@
 // formulas and the "Insert tax table" command produce.
 //
 //   npm run demo                         offline: recorded API responses and tables from test/fixtures
-//   npm run demo -- --live               real calls to https://calcbloc.com/api/v1 (about 8 requests; needs a free
-//                                        key in CALCBLOC_API_KEY, from https://calcbloc.com/developers/keys)
+//   npm run demo -- --live               real calls to https://calcbloc.com/api/v1 (about 8 requests). Works
+//                                        without a key (50 requests a day); set CALCBLOC_API_KEY to use a free key
 //   npm run demo -- --html <folder>      also writes sheet.html and sidebar.html previews to <folder>
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -17,15 +17,9 @@ const args = process.argv.slice(2);
 const live = args.includes("--live");
 const htmlDir = args.includes("--html") ? resolve(args[args.indexOf("--html") + 1] ?? "preview") : null;
 
-// The add-on makes no request without an API key, so the offline demo uses a key the fake API accepts.
-const DEMO_KEY = "cb_" + "Demo0000000000000000000000000000";
-if (live && !process.env.CALCBLOC_API_KEY) {
-  console.error("--live needs a free CalcBloc API key in CALCBLOC_API_KEY (https://calcbloc.com/developers/keys).");
-  process.exit(1);
-}
-const fake = createFakeApi({ keys: [DEMO_KEY], limits: false });
+const fake = createFakeApi({ limits: false });
 const gas = createGas({ handler: live ? liveHandler : fake.handler, whitelist: manifest().urlFetchWhitelist, htmlDir: join(root, "apps-script") });
-gas.userProps.setProperty("calcbloc.apiKey", live ? process.env.CALCBLOC_API_KEY : DEMO_KEY);
+if (live && process.env.CALCBLOC_API_KEY) gas.userProps.setProperty("calcbloc.apiKey", process.env.CALCBLOC_API_KEY);
 const g = loadBundle(gas.globals);
 
 console.log(`CalcBloc for Google Sheets ${g.CalcBlocLib.VERSION}: local demo (${live ? "LIVE API" : "offline fixtures"})\n`);
@@ -77,6 +71,24 @@ for (const [, fn] of SAMPLES) {
   }
 }
 console.log(`HTTP requests after the second run: ${gas.fetch.calls.length} (no new requests).\n`);
+
+if (!live) {
+  // Without a key the add-on uses the API's free allowance; once it is used up, cells ask for a free key.
+  // Here the fake API's no-key allowance is cut to 2 requests to show the message.
+  const small = createFakeApi({ limits: true, anonymousPerDay: 2 });
+  const gas2 = createGas({ handler: small.handler, whitelist: manifest().urlFetchWhitelist, htmlDir: join(root, "apps-script") });
+  const g2 = loadBundle(gas2.globals);
+  const cellOf = (fn) => {
+    try {
+      return fn();
+    } catch (e) {
+      return `#ERROR! ${e.message}`;
+    }
+  };
+  console.log("Without a key, after the free allowance (50 a day, here cut to 2) is used up:");
+  console.log(`  =CALCBLOC_NET("uk", 40000)  -> ${cellOf(() => g2.CALCBLOC_NET("uk", 40000))}`);
+  console.log(`  =CALCBLOC_NET("uk", 50000)  -> ${cellOf(() => g2.CALCBLOC_NET("uk", 50000))}\n`);
+}
 
 if (htmlDir) {
   mkdirSync(htmlDir, { recursive: true });

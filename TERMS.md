@@ -2,13 +2,13 @@
 
 **Last updated: 11 November 2026.** Published at [calcbloc.com/google-sheets/terms](https://calcbloc.com/google-sheets/terms?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss); this file says the same thing.
 
-Free to use with a free API key. Results are estimates, not advice, and shared figures keep the CalcBloc credit.
+Free to use. Results are estimates, not advice, and shared figures keep the CalcBloc credit.
 
 These terms apply to the CalcBloc add-on for Google Sheets ("the add-on"), published by [itmarkerz technologies](https://itmarkerz.co.in/?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss), which operates CalcBloc ("we", "us"). By installing or using the add-on you agree to them. Use of the CalcBloc API through the add-on is also subject to the [API and data terms](https://calcbloc.com/developers/terms?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss) and the website [terms of use](https://calcbloc.com/terms?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss). How the add-on handles data is described in its [privacy policy](https://calcbloc.com/google-sheets/privacy?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss) ([PRIVACY.md](PRIVACY.md)).
 
 ## 1. What the add-on does
 
-The add-on adds spreadsheet functions (`CALCBLOC_NET`, `CALCBLOC_TAX`, `CALCBLOC_EMPLOYER_COST`, `CALCBLOC_RATE`, `CALCBLOC_BAND_TAX` and `CALCBLOC_COUNTRIES`) and a sidebar that retrieve tax tables and take-home pay, income tax and employer cost estimates from the CalcBloc API. It is free of charge. It needs a free CalcBloc API key, available at [calcbloc.com/developers/keys](https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss).
+The add-on adds spreadsheet functions (`CALCBLOC_NET`, `CALCBLOC_TAX`, `CALCBLOC_EMPLOYER_COST`, `CALCBLOC_RATE`, `CALCBLOC_BAND_TAX` and `CALCBLOC_COUNTRIES`) and a sidebar that retrieve tax tables and take-home pay, income tax and employer cost estimates from the CalcBloc API. It is free of charge.
 
 ## 2. Estimates, not advice
 
@@ -22,7 +22,7 @@ If you share or publish figures obtained through the add-on, keep the credit **"
 
 ## 4. Fair use and limits
 
-The CalcBloc API applies daily and per-minute request limits. The add-on requires a free API key and makes no requests without one; a free key allows 5,000 requests a day and 60 a minute, and every request the add-on makes counts towards the limits of the key it uses. You agree not to use the add-on to get around those limits, to scrape the API or to interfere with the service. We may change the limits, and we may revoke keys that are misused.
+The CalcBloc API applies daily and per-minute request limits. A free API key allows 5,000 requests a day and 60 a minute. Without a key the API allows 50 requests a day and 5 a minute per internet address; because the add-on's requests come from Google's servers, which many users share, that allowance is shared too, and some functions may need a free key. You agree not to use the add-on to get around those limits, to scrape the API or to interfere with the service. We may change the limits, and we may revoke keys that are misused.
 
 ## 5. Your API key
 
@@ -34,7 +34,7 @@ The add-on and the API are provided free of charge, as they are, without any gua
 
 ## 7. Liability
 
-To the extent permitted by law, CalcBloc and itmarkerz technologies are not liable for any loss arising from the use of, or reliance on, the add-on or its results. The disclaimer of warranties and limitation of liability in the website [terms of use](https://calcbloc.com/terms?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss) also apply. Nothing in these terms limits liability that cannot be limited by law.
+To the extent permitted by law, CalcBloc and [itmarkerz technologies](https://itmarkerz.co.in/?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss) are not liable for any loss arising from the use of, or reliance on, the add-on or its results. The disclaimer of warranties and limitation of liability in the website [terms of use](https://calcbloc.com/terms?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss) also apply. Nothing in these terms limits liability that cannot be limited by law.
 
 ## 8. Open source
 
@@ -42,7 +42,7 @@ The add-on's source code is available under the MIT licence at [github.com/itmar
 
 ## 9. Google
 
-Google Sheets and Google Workspace are trademarks of Google LLC. The add-on is published by itmarkerz technologies, not by Google, and your use of Google Sheets is subject to Google's own terms.
+Google Sheets and Google Workspace are trademarks of Google LLC. The add-on is published by [itmarkerz technologies](https://itmarkerz.co.in/?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss), not by Google, and your use of Google Sheets is subject to Google's own terms.
 
 ## 10. Changes to these terms
 
@@ -52,4 +52,4 @@ Updated terms will be published on [calcbloc.com/google-sheets/terms](https://ca
 
 Questions about these terms: [hello@calcbloc.com](mailto:hello@calcbloc.com), or see our [contact page](https://calcbloc.com/contact?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss).
 
-See also the add-on's [privacy policy](PRIVACY.md), and the CalcBloc website [privacy policy](https://calcbloc.com/privacy?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss) and [terms of use](https://calcbloc.com/terms?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss). CalcBloc is a product of itmarkerz technologies.
+See also the add-on's [privacy policy](PRIVACY.md), and the CalcBloc website [privacy policy](https://calcbloc.com/privacy?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss) and [terms of use](https://calcbloc.com/terms?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss). CalcBloc is a product of [itmarkerz technologies](https://itmarkerz.co.in/?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss).

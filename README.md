@@ -4,7 +4,7 @@ A Google Sheets add-on with custom functions for take-home pay, income tax, empl
 
 CalcBloc is a product of [itmarkerz technologies](https://itmarkerz.co.in/?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss).
 
-**Needs a free API key.** Get one at [calcbloc.com/developers/keys](https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss) and paste it in **Extensions > CalcBloc > Settings and API key**. Until a key is saved the add-on makes no requests: formulas and the sidebar show a short set-up message instead.
+**Works without sign-up.** Formulas and the sidebar use the CalcBloc API's free allowance without a key: 50 requests a day and 5 a minute per internet address. Google runs every spreadsheet's requests from shared server addresses, so that allowance can run out sooner than your own use explains; when it does, cells and the sidebar say **"Add your free API key"**. A [free API key](https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss) gives 5,000 requests a day and 60 a minute: paste it in **Extensions > CalcBloc > Settings and API key**.
 
 > **Status:** ready for review, not published. Nothing has been submitted to the Google Workspace Marketplace. See [PUBLISHING_CHECKLIST.md](PUBLISHING_CHECKLIST.md).
 
@@ -87,7 +87,7 @@ About half the countries (for example Norway, Austria, Poland and Switzerland) h
 
 **Extensions > CalcBloc > Settings and API key**:
 
-- **API key (required).** The add-on needs a [free key](https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss): 5,000 requests a day and 60 a minute. Google runs every spreadsheet's requests from shared internet addresses, so the API's small no-key allowance would be used up by other Apps Script users; the add-on therefore never calls the API without a key. Until one is saved, formulas return a set-up message with the key link and the sidebar opens on Settings. The sidebar checks the key with calcbloc.com before saving it in your Google account's settings for this add-on (user properties). Only its last four characters are ever shown again.
+- **API key (optional).** Without a key the add-on calls the API anonymously, within its free allowance of 50 requests a day and 5 a minute per internet address. Google runs every spreadsheet's requests from shared server addresses, so other Apps Script users can use up that allowance; once a keyless request is refused (HTTP 429) or the API reports `X-RateLimit-Remaining: 0`, formulas return "Add your free API key: ..." with the [keys link](https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss) and this Settings path, the sidebar shows the same prompt, and keyless requests pause for a minute instead of retrying. A free key gives 5,000 requests a day and 60 a minute and is sent in the `X-API-Key` header. The sidebar checks the key with calcbloc.com before saving it in your Google account's settings for this add-on (user properties). Only its last four characters are ever shown again.
 - **Share my key with this spreadsheet.** Custom functions run in a restricted mode in which Google only lets them read the spreadsheet owner's settings. If you edit a sheet someone else owns, tick this so the formulas can use your key; it is then stored with the spreadsheet (document properties), readable only by the add-on.
 - **Default country and region.** Saved with the spreadsheet, so every collaborator's formulas give the same results.
 - **Clear cached results.** Results are cached for up to 6 hours; this starts fresh.
@@ -97,7 +97,7 @@ About half the countries (for example Norway, Austria, Poland and Switzerland) h
 - Tax tables and the country list are cached for 6 hours in the add-on's shared cache (public data), so a sheet full of `CALCBLOC_RATE` or `CALCBLOC_BAND_TAX` cells costs one request per table.
 - Calculation results are cached for 6 hours in the spreadsheet's own cache, one request per distinct salary.
 - A range formula sends its new requests together, at most 40 per recalculation; the rest of the cells say so and fill in on the next recalculation.
-- Errors that will not change (unknown parameter, unsupported country) are cached for an hour; a rate-limit answer is held for up to a minute so a sheet does not keep retrying.
+- Errors that will not change (unknown parameter, unsupported country) are cached for an hour; a rate-limit answer is held for up to a minute so a sheet does not keep retrying. Without a key, once the free allowance is used up (429, or `X-RateLimit-Remaining: 0`), every keyless formula in the spreadsheet shows the "Add your free API key" message for a minute without calling the API; saving a key lifts this at once.
 
 ## Install for review (clasp)
 
@@ -127,7 +127,7 @@ npm run build && npx @google/clasp@3 push --force
 
 1. Open the spreadsheet (`npx @google/clasp@3 open-container`, or open it from Drive) and reload the page. A bound script shows its menu under **Extensions** with the project's name: **Extensions > CalcBloc review**.
 2. Click **Settings and API key**. The first click asks you to authorise the script; the prompt lists the three scopes in [appsscript.json](apps-script/appsscript.json). Formulas can call the API only after this step (until then they show a permission error).
-3. Paste a [free API key](https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss) and save. Without one, formulas show the set-up message and nothing is sent to calcbloc.com.
+3. Optionally paste a [free API key](https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss) and save. Without one, formulas use the free allowance (50 requests a day) and ask for a key when it runs out.
 4. Try the formulas below in cells. Typing `=CALCBLOC` shows the help text.
 
    | Cell | Formula | Expected (2026 data) |
@@ -157,12 +157,12 @@ test/           vitest tests, including worked tax examples and tests of the bui
 
 - `npm run build` bundles `src/` into `dist/lib.js` as one global object (`CalcBlocLib`) for the V8 runtime and copies `apps-script/`. Sheets reads custom-function help text from JSDoc on plain global functions, so those live in `apps-script/Code.js` and forward to the bundle.
 - `npm test` runs the tests against the source and against the built files loaded the way Apps Script loads them.
-- `npm run demo -- --live` makes about 10 real requests to calcbloc.com with the free key in `CALCBLOC_API_KEY` (required). `npm run demo -- --html <folder>` also writes HTML previews of the outputs and the sidebar.
+- `npm run demo -- --live` makes about 10 real requests to calcbloc.com without a key, or with a free key in `CALCBLOC_API_KEY`. The offline demo also shows the "Add your free API key" message after a (shortened) free allowance. `npm run demo -- --html <folder>` also writes HTML previews of the outputs and the sidebar.
 - `npm run fixtures` refreshes the test tables from a local copy of the [calcbloc-data](https://github.com/itmarkerz/calcbloc-data) repository.
 
 ## Privacy
 
-The add-on sends only what a formula or the sidebar asks for (country, region, year, salary amount and any options you add, plus your API key) to `https://calcbloc.com/api/v1`, the only address it is allowed to contact. It does not read other cells, other files, your name or your email address. Settings are stored with Google (your account's add-on settings and the spreadsheet's add-on settings); results are cached by Google for up to 6 hours. Full text: [PRIVACY.md](PRIVACY.md).
+The add-on sends only what a formula or the sidebar asks for (country, region, year, salary amount and any options you add, plus your API key if you saved one) to `https://calcbloc.com/api/v1`, the only address it is allowed to contact. It does not read other cells, other files, your name or your email address. Settings are stored with Google (your account's add-on settings and the spreadsheet's add-on settings); results are cached by Google for up to 6 hours. Full text: [PRIVACY.md](PRIVACY.md).
 
 ## Data, accuracy and licence
 

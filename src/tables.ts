@@ -1,4 +1,4 @@
-import { getJson, requireKey } from "./api";
+import { getJson } from "./api";
 import { cacheGet, cachePut } from "./cache";
 import { CACHE_TTL_SECONDS } from "./config";
 import type { Country } from "./countries";
@@ -139,7 +139,6 @@ export function resolveYear(country: Country, input: unknown): string {
 }
 
 export function getTable(country: Country, year: string, region?: string): Table {
-  requireKey();
   const key = `table:v1:${country.code}:${year}:${region ?? ""}`;
   const hit = cacheGet<CompactTable>("public", key);
   if (hit && hit.v === 1) return expandTable(hit);
