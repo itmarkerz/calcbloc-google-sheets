@@ -75,7 +75,7 @@ Income tax as computed by the country's take-home calculator on calcbloc.com:
 
 ### Countries with tax tables only
 
-About half the countries (for example Norway, Austria, Poland and Switzerland) have tax tables on CalcBloc but no take-home calculator yet. For them `CALCBLOC_NET`, `CALCBLOC_TAX` and `CALCBLOC_EMPLOYER_COST` return a clear message with a link to the tables instead of a guess. `CALCBLOC_RATE`, `CALCBLOC_BAND_TAX` and **Insert tax table** work for every country.
+About two-thirds of the countries (for example Norway, Austria, Poland and Switzerland) have tax tables on CalcBloc but no take-home calculator yet. For them `CALCBLOC_NET`, `CALCBLOC_TAX` and `CALCBLOC_EMPLOYER_COST` return a clear message with a link to the tables instead of a guess. `CALCBLOC_RATE`, `CALCBLOC_BAND_TAX` and **Insert tax table** work for every country.
 
 `CALCBLOC_BAND_TAX` applies each band's rate to the part of the amount inside that band. It does not apply allowances, credits, surcharges or special rules, which differ by country and are described in the section notes (for example Poland's PLN 3,600 tax-reducing amount, or the Swiss federal rule above CHF 794,000). Use it on taxable income, not gross salary.
 
