@@ -1,6 +1,6 @@
 # Privacy policy: CalcBloc for Google Sheets
 
-**Last updated: 11 November 2026.** Published at [calcbloc.com/google-sheets/privacy](https://calcbloc.com/google-sheets/privacy?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss); this file says the same thing.
+**Last updated: 12 November 2026.** Published at [calcbloc.com/google-sheets/privacy](https://calcbloc.com/google-sheets/privacy?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss); this file says the same thing.
 
 The add-on sends only the inputs of its own formulas to calcbloc.com. No tracking, no ads, no selling of data.
 
@@ -8,7 +8,7 @@ This policy covers the CalcBloc add-on for Google Sheets ("the add-on"). The add
 
 ## Summary
 
-The add-on sends the inputs of its own formulas and sidebar to the CalcBloc API at calcbloc.com, and nothing else. It does not read your other cells, other files, your name or your email address. It has no analytics or advertising, and we do not sell data.
+The add-on sends the inputs of its own formulas and sidebar to the CalcBloc API at calcbloc.com, and nothing else. It does not read your other cells, other files, your name or your email address. It has no analytics or advertising, and we do not sell data. An API key is optional: the add-on works without one, within the API's free allowance of 50 requests a day per internet address.
 
 ## Permissions the add-on asks for
 

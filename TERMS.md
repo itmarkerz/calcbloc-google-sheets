@@ -1,6 +1,6 @@
 # Terms of service: CalcBloc for Google Sheets
 
-**Last updated: 11 November 2026.** Published at [calcbloc.com/google-sheets/terms](https://calcbloc.com/google-sheets/terms?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss); this file says the same thing.
+**Last updated: 12 November 2026.** Published at [calcbloc.com/google-sheets/terms](https://calcbloc.com/google-sheets/terms?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss); this file says the same thing.
 
 Free to use. Results are estimates, not advice, and shared figures keep the CalcBloc credit.
 
@@ -22,11 +22,11 @@ If you share or publish figures obtained through the add-on, keep the credit **"
 
 ## 4. Fair use and limits
 
-The CalcBloc API applies daily and per-minute request limits. A free API key allows 5,000 requests a day and 60 a minute. Without a key the API allows 50 requests a day and 5 a minute per internet address; because the add-on's requests come from Google's servers, which many users share, that allowance is shared too, and some functions may need a free key. You agree not to use the add-on to get around those limits, to scrape the API or to interfere with the service. We may change the limits, and we may revoke keys that are misused.
+The CalcBloc API applies daily and per-minute request limits. A free API key allows 5,000 requests a day and 60 a minute. Without a key the API allows 50 requests a day and 5 a minute per internet address; because the add-on's requests come from Google's servers, which many users share, that allowance is shared too and can run out sooner than your own use explains; the add-on then asks for a free key. You agree not to use the add-on to get around those limits, to scrape the API or to interfere with the service. We may change the limits, and we may revoke keys that are misused.
 
 ## 5. Your API key
 
-You are responsible for keeping your CalcBloc API key confidential. If you choose to let formulas in a spreadsheet use your key, anyone working in that spreadsheet can cause requests to be made with it, and those requests count towards your limits; they cannot read the key.
+An API key is optional: the add-on works without one, within the free allowance above. A free key (5,000 requests a day) is available from [calcbloc.com/developers/keys](https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&utm_medium=docs&utm_campaign=itmarkerz-oss). You are responsible for keeping your CalcBloc API key confidential. If you choose to let formulas in a spreadsheet use your key, anyone working in that spreadsheet can cause requests to be made with it, and those requests count towards your limits; they cannot read the key.
 
 ## 6. Availability and changes
 
