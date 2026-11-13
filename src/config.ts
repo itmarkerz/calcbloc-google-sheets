@@ -34,6 +34,16 @@ export const ERROR_TTL_SECONDS = 3600;
 export const CACHE_MAX_VALUE_CHARS = 100 * 1024 - 64;
 
 /**
+ * Larger values are split into parts of this many characters. A third of the limit, so a part stays under 100 KB even
+ * when every character takes three bytes in UTF-8 (CacheService counts bytes). Since the API allows 1 MB responses,
+ * a compact tax table can pass 100 KB.
+ */
+export const CACHE_PART_CHARS = Math.floor(CACHE_MAX_VALUE_CHARS / 3);
+
+/** At most this many parts per value (about 1 MB of compact JSON); anything larger is not cached. */
+export const CACHE_MAX_PARTS = 30;
+
+/**
  * Upper bound on new (uncached) API calls in one custom-function call. A custom function must finish in 30 seconds,
  * and the free key allows 60 requests a minute; cells over the limit say so and fill in on the next recalculation.
  */

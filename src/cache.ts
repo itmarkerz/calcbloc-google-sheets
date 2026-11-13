@@ -1,4 +1,4 @@
-import { CACHE_MAX_VALUE_CHARS } from "./config";
+import { CACHE_MAX_PARTS, CACHE_PART_CHARS } from "./config";
 import { hash } from "./util";
 
 /**
@@ -11,6 +11,10 @@ import { hash } from "./util";
  *
  * Every key carries a namespace number kept in the same cache, so "Clear cached results" in the sidebar can drop
  * everything at once without enumerating keys (CacheService cannot list keys).
+ *
+ * CacheService rejects values over 100 KB. A longer value is stored as parts under "<key>#<i>" and a head entry
+ * "~parts:<n>:<length>" under the key itself, written last so a reader never sees a head without its parts. A head
+ * whose parts are missing or incomplete counts as a cache miss.
  */
 export type CacheScope = "public" | "document";
 
@@ -56,7 +60,9 @@ export function cacheGetMany<T>(scope: CacheScope, keys: string[]): Record<strin
     return out;
   }
   for (const [fk, k] of map) {
-    const raw = found[fk];
+    let raw: string | null | undefined = found[fk];
+    if (raw == null) continue;
+    if (raw.startsWith(PARTS)) raw = readParts(c, fk, raw);
     if (raw == null) continue;
     try {
       out[k] = JSON.parse(raw) as T;
@@ -67,14 +73,40 @@ export function cacheGetMany<T>(scope: CacheScope, keys: string[]): Record<strin
   return out;
 }
 
-/** Stores a JSON value; values over the 100 KB CacheService limit are skipped (the next call fetches again). */
+const PARTS = "~parts:";
+const partKey = (fk: string, i: number) => `${fk}#${i}`;
+
+function readParts(c: GoogleAppsScript.Cache.Cache, fk: string, head: string): string | null {
+  const [n, length] = head.slice(PARTS.length).split(":").map(Number);
+  if (!(n > 0 && n <= CACHE_MAX_PARTS)) return null;
+  const keys = Array.from({ length: n }, (_, i) => partKey(fk, i));
+  try {
+    const got = c.getAll(keys);
+    if (keys.some((pk) => got[pk] == null)) return null;
+    const raw = keys.map((pk) => got[pk]).join("");
+    return raw.length === length ? raw : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Stores a JSON value, in parts when it is longer than one CacheService entry allows; false when it was not stored. */
 export function cachePut(scope: CacheScope, key: string, value: unknown, ttlSeconds: number): boolean {
   const c = store(scope);
   if (!c) return false;
   const raw = JSON.stringify(value);
-  if (raw.length > CACHE_MAX_VALUE_CHARS) return false;
+  const fk = fullKey(namespace(c), key);
   try {
-    c.put(fullKey(namespace(c), key), raw, ttlSeconds);
+    if (raw.length <= CACHE_PART_CHARS) {
+      c.put(fk, raw, ttlSeconds);
+      return true;
+    }
+    const n = Math.ceil(raw.length / CACHE_PART_CHARS);
+    if (n > CACHE_MAX_PARTS) return false;
+    const parts: Record<string, string> = {};
+    for (let i = 0; i < n; i++) parts[partKey(fk, i)] = raw.slice(i * CACHE_PART_CHARS, (i + 1) * CACHE_PART_CHARS);
+    c.putAll(parts, ttlSeconds);
+    c.put(fk, `${PARTS}${n}:${raw.length}`, ttlSeconds);
     return true;
   } catch {
     return false;

@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { CALCBLOC_BAND_TAX, CALCBLOC_RATE } from "../src/functions";
 import { bandTax, compactTable, expandTable } from "../src/tables";
 import { requests, setup } from "./helpers";
+import { CACHE_MAX_PARTS, CACHE_PART_CHARS } from "../src/config";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 let env: ReturnType<typeof setup>;
@@ -125,12 +126,12 @@ describe("compact cache format", () => {
 
   // The full dataset lives in the sibling calcbloc-data repository; checked when it is present.
   const data = join(HERE, "..", "..", "calcbloc-data", "tables");
-  it.runIf(existsSync(data))("keeps every table in the dataset under CacheService's 100 KB limit", () => {
+  it.runIf(existsSync(data))("keeps every compact table in the dataset within the cache part budget", () => {
     let largest = 0;
     for (const f of files(data).filter((x) => x.endsWith(".json") && !x.endsWith("manifest.json"))) {
       const size = JSON.stringify(compactTable(JSON.parse(readFileSync(f, "utf8")))).length;
       largest = Math.max(largest, size);
-      expect(size, f).toBeLessThan(100 * 1024 - 64);
+      expect(size, f).toBeLessThan(CACHE_PART_CHARS * CACHE_MAX_PARTS);
     }
     expect(largest).toBeGreaterThan(10000);
   });
