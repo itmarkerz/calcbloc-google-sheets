@@ -12,7 +12,7 @@ Draft text and assets for the Marketplace SDK **Store listing** and **App config
 
 **Short description** (200 characters max):
 
-> Take-home pay, income tax and employer cost functions for Sheets, plus official tax tables for 37 countries with a government source link for every figure.
+> Take-home pay, income tax and employer cost functions for Sheets, plus official tax tables for 41 countries with a government source link for every figure.
 
 (155 characters. Update the country count if it changes; the add-on itself reads the list from the API.)
 
