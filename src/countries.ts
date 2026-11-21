@@ -1,6 +1,7 @@
 import { getJson } from "./api";
 import { cacheGet, cachePut } from "./cache";
 import { CACHE_TTL_SECONDS, DEVELOPERS_URL } from "./config";
+import { countryKeyFor } from "./country-codes";
 import { defaultCountry, defaultRegion } from "./settings";
 import { CalcBlocError, isBlank, normalize, text } from "./util";
 
@@ -18,6 +19,9 @@ export interface Country {
   /** Region codes each calculation endpoint accepts (can differ from the tax-table regions). */
   calcRegions: Record<string, string[]>;
   calculatorUrls: Record<string, string>;
+  /** Short code ("nz") and ISO code ("NZ") from /countries (API 1.7 and later); absent in older responses. */
+  shortCode?: string;
+  isoCode?: string;
 }
 
 interface ApiParam {
@@ -33,6 +37,8 @@ interface ApiCountry {
   years?: string[];
   available_endpoints?: string[];
   tables_only?: boolean;
+  short_code?: string;
+  iso_code?: string;
   endpoints: Record<string, { calculatorUrl?: string; pageUrl?: string; parameters?: ApiParam[]; regions?: { code: string; name: string }[] }>;
 }
 
@@ -59,6 +65,8 @@ export function compactCountries(raw: { countries: ApiCountry[] }): Country[] {
       regions: t?.regions ?? [],
       calcRegions,
       calculatorUrls,
+      ...(typeof c.short_code === "string" && c.short_code ? { shortCode: c.short_code } : {}),
+      ...(typeof c.iso_code === "string" && c.iso_code ? { isoCode: c.iso_code } : {}),
     };
   });
 }
@@ -73,10 +81,12 @@ export function getCountries(): Country[] {
   return list;
 }
 
-/** A few everyday names that differ from the API codes. Unknown input is still matched against the live list. */
-const ALIASES: Record<string, string> = { usa: "us", "united-states-of-america": "us", gb: "uk", "great-britain": "uk", "united-kingdom": "uk", nz: "new-zealand", au: "australia" };
-
-/** Accepts a code ("new-zealand"), a name ("New Zealand") or a common alias; blank means the spreadsheet default. */
+/**
+ * Accepts, case-insensitively, the API key ("new-zealand"), the short code ("nz"; "uk" or "gb" for the United
+ * Kingdom), the ISO code ("NZ"), the English name ("New Zealand") or another known name; blank means the
+ * spreadsheet default. Matching order: the key or name in the live list, then the short and ISO codes the live list
+ * carries (API 1.7), then the built-in table of codes and names (country-codes.ts).
+ */
 export function resolveCountry(input: unknown): Country {
   const list = getCountries();
   let q = normalize(input);
@@ -84,9 +94,13 @@ export function resolveCountry(input: unknown): Country {
     q = normalize(defaultCountry());
     if (!q) throw new CalcBlocError("Country is required (for example \"us\" or \"Germany\"), or set a default country in Extensions > CalcBloc > Settings.", "missing_country");
   }
-  q = ALIASES[q] ?? q;
-  const found = list.find((c) => c.code === q || normalize(c.name) === q);
+  const found =
+    list.find((c) => c.code === q || normalize(c.name) === q) ??
+    list.find((c) => (c.shortCode !== undefined && normalize(c.shortCode) === q) || (c.isoCode !== undefined && normalize(c.isoCode) === q));
   if (found) return found;
+  const key = countryKeyFor(q);
+  const byKey = key !== undefined ? list.find((c) => c.code === key) : undefined;
+  if (byKey) return byKey;
   throw new CalcBlocError(`Unknown country "${text(input).slice(0, 40)}". Use one of: ${list.map((c) => c.code).join(", ")}. List: ${DEVELOPERS_URL}`, "unsupported_country");
 }
 

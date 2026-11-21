@@ -31,7 +31,7 @@ Every function is documented in the formula helper as you type. Rates come back 
 
 **Arguments**
 
-- `country`: a code or name: `"us"`, `"uk"`, `"Germany"`, `"new-zealand"`, `"New Zealand"`. The short codes `"nz"`, `"au"` and `"gb"` also work. Leave it blank to use the spreadsheet's default country (Settings).
+- `country`: a code or name: `"us"`, `"uk"`, `"Germany"`, `"new-zealand"`, `"New Zealand"`. Short codes such as `"nz"` or `"de"` (the two-letter ISO code in any case, with `"uk"` or `"gb"` for the United Kingdom) also work. Leave it blank to use the spreadsheet's default country (Settings).
 - `region`: a state, province or region code or name: `"ca"` or `"California"`, `"on"`, `"scotland"`. Required for the US and Canada (and Australia for employer cost).
 - `year`: calculations use each country's current tax year, so leave it blank (or `"latest"`). `CALCBLOC_RATE` and `CALCBLOC_BAND_TAX` also read earlier years, e.g. `"2025-26"`.
 - `options`: extra calculator inputs as `"name=value; name=value"`, for example `"filing_status=mfj; children=2"` (US) or `"pension_pct=5"` (UK employer cost). Each country's inputs are listed by the [API's countries endpoint](https://calcbloc.com/api/v1/countries). Add `result=<name>` to return another figure from the calculation, for example `"result=netMonthly"`.
