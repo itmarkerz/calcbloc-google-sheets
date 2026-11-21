@@ -4,7 +4,7 @@ A Google Sheets add-on with custom functions for take-home pay, income tax, empl
 
 CalcBloc is a product of [itmarkerz technologies](https://itmarkerz.co.in/?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss).
 
-**Works without sign-up.** Formulas and the sidebar use the CalcBloc API's free allowance without a key: 50 requests a day and 5 a minute per internet address. Google runs every spreadsheet's requests from shared server addresses, so that allowance can run out sooner than your own use explains; when it does, cells and the sidebar say **"Add your free API key"**. A [free API key](https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss) gives 5,000 requests a day and 60 a minute: paste it in **Extensions > CalcBloc > Settings and API key**.
+**Works without sign-up.** Formulas and the sidebar use the CalcBloc API's free allowance without a key: 300 requests a day and 20 a minute per internet address (see [calcbloc.com/developers#limits](https://calcbloc.com/developers?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss#limits)). Google runs every spreadsheet's requests from shared server addresses, so that allowance can run out sooner than your own use explains; when it does, cells and the sidebar say **"Add your free API key"**. A [free API key](https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss) gives 5,000 requests a day and 60 a minute: paste it in **Extensions > CalcBloc > Settings and API key**.
 
 > **Status:** ready for review, not published. Nothing has been submitted to the Google Workspace Marketplace. See [PUBLISHING_CHECKLIST.md](PUBLISHING_CHECKLIST.md).
 
@@ -31,7 +31,7 @@ Every function is documented in the formula helper as you type. Rates come back 
 
 **Arguments**
 
-- `country`: a code or name: `"us"`, `"uk"`, `"Germany"`, `"new-zealand"`, `"New Zealand"`. Leave it blank to use the spreadsheet's default country (Settings).
+- `country`: a code or name: `"us"`, `"uk"`, `"Germany"`, `"new-zealand"`, `"New Zealand"`. The short codes `"nz"`, `"au"` and `"gb"` also work. Leave it blank to use the spreadsheet's default country (Settings).
 - `region`: a state, province or region code or name: `"ca"` or `"California"`, `"on"`, `"scotland"`. Required for the US and Canada (and Australia for employer cost).
 - `year`: calculations use each country's current tax year, so leave it blank (or `"latest"`). `CALCBLOC_RATE` and `CALCBLOC_BAND_TAX` also read earlier years, e.g. `"2025-26"`.
 - `options`: extra calculator inputs as `"name=value; name=value"`, for example `"filing_status=mfj; children=2"` (US) or `"pension_pct=5"` (UK employer cost). Each country's inputs are listed by the [API's countries endpoint](https://calcbloc.com/api/v1/countries). Add `result=<name>` to return another figure from the calculation, for example `"result=netMonthly"`.
@@ -87,7 +87,7 @@ About two-thirds of the countries (for example Norway, Austria, Poland and Switz
 
 **Extensions > CalcBloc > Settings and API key**:
 
-- **API key (optional).** Without a key the add-on calls the API anonymously, within its free allowance of 50 requests a day and 5 a minute per internet address. Google runs every spreadsheet's requests from shared server addresses, so other Apps Script users can use up that allowance; once a keyless request is refused (HTTP 429) or the API reports `X-RateLimit-Remaining: 0`, formulas return "Add your free API key: ..." with the [keys link](https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss) and this Settings path, the sidebar shows the same prompt, and keyless requests pause for a minute instead of retrying. A free key gives 5,000 requests a day and 60 a minute and is sent in the `X-API-Key` header. The sidebar checks the key with calcbloc.com before saving it in your Google account's settings for this add-on (user properties). Only its last four characters are ever shown again.
+- **API key (optional).** Without a key the add-on calls the API anonymously, within its free allowance of 300 requests a day and 20 a minute per internet address (see [calcbloc.com/developers#limits](https://calcbloc.com/developers?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss#limits)). Google runs every spreadsheet's requests from shared server addresses, so other Apps Script users can use up that allowance; once a keyless request is refused (HTTP 429) or the API reports `X-RateLimit-Remaining: 0`, formulas return "Add your free API key: ..." with the [keys link](https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss) and this Settings path, the sidebar shows the same prompt, and keyless requests pause for a minute instead of retrying. A free key gives 5,000 requests a day and 60 a minute and is sent in the `X-API-Key` header. The sidebar checks the key with calcbloc.com before saving it in your Google account's settings for this add-on (user properties). Only its last four characters are ever shown again.
 - **Share my key with this spreadsheet.** Custom functions run in a restricted mode in which Google only lets them read the spreadsheet owner's settings. If you edit a sheet someone else owns, tick this so the formulas can use your key; it is then stored with the spreadsheet (document properties), readable only by the add-on.
 - **Default country and region.** Saved with the spreadsheet, so every collaborator's formulas give the same results.
 - **Clear cached results.** Results are cached for up to 6 hours; this starts fresh.
@@ -127,7 +127,7 @@ npm run build && npx @google/clasp@3 push --force
 
 1. Open the spreadsheet (`npx @google/clasp@3 open-container`, or open it from Drive) and reload the page. A bound script shows its menu under **Extensions** with the project's name: **Extensions > CalcBloc review**.
 2. Click **Settings and API key**. The first click asks you to authorise the script; the prompt lists the three scopes in [appsscript.json](apps-script/appsscript.json). Formulas can call the API only after this step (until then they show a permission error).
-3. Optionally paste a [free API key](https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss) and save. Without one, formulas use the free allowance (50 requests a day) and ask for a key when it runs out.
+3. Optionally paste a [free API key](https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&utm_medium=readme&utm_campaign=itmarkerz-oss) and save. Without one, formulas use the free allowance (300 requests a day and 20 a minute per internet address) and ask for a key when it runs out.
 4. Try the formulas below in cells. Typing `=CALCBLOC` shows the help text.
 
    | Cell | Formula | Expected (2026 data) |

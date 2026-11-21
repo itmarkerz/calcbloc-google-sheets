@@ -22,7 +22,7 @@ If you share or publish figures obtained through the add-on, keep the credit **"
 
 ## 4. Fair use and limits
 
-The CalcBloc API applies daily and per-minute request limits. A free API key allows 5,000 requests a day and 60 a minute. Without a key the API allows 50 requests a day and 5 a minute per internet address; because the add-on's requests come from Google's servers, which many users share, that allowance is shared too and can run out sooner than your own use explains; the add-on then asks for a free key. You agree not to use the add-on to get around those limits, to scrape the API or to interfere with the service. We may change the limits, and we may revoke keys that are misused.
+The CalcBloc API applies daily and per-minute request limits. A free API key allows 5,000 requests a day and 60 a minute. Without a key the API allows 300 requests a day and 20 a minute per internet address; because the add-on's requests come from Google's servers, which many users share, that allowance is shared too and can run out sooner than your own use explains; the add-on then asks for a free key. You agree not to use the add-on to get around those limits, to scrape the API or to interfere with the service. We may change the limits, and we may revoke keys that are misused.
 
 ## 5. Your API key
 
