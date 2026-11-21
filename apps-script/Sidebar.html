@@ -31,7 +31,7 @@
     <p class="credit"><a href="https://calcbloc.com/data?utm_source=calcbloc-google-sheets&amp;utm_medium=app&amp;utm_campaign=itmarkerz-oss" target="_blank" rel="noopener">Data by CalcBloc (calcbloc.com/data)</a> · CC BY 4.0</p>
 
     <div id="needs-key" class="status error" hidden>
-      <strong>Add your free API key.</strong> The free requests without a key (50 a day, 5 a minute, per internet address) are used up. Google's servers share internet addresses between many users, so this allowance can run out sooner than your own use explains. <a href="https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&amp;utm_medium=app&amp;utm_campaign=itmarkerz-oss" target="_blank" rel="noopener">Get a free key</a> (5,000 requests a day), paste it under Settings below and click <strong>Save settings</strong>.
+      <strong>Add your free API key.</strong> The free requests without a key are used up. Google's servers share internet addresses between many users, so this allowance can run out sooner than your own use explains. <a href="https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&amp;utm_medium=app&amp;utm_campaign=itmarkerz-oss" target="_blank" rel="noopener">Get a free key</a> (5,000 requests a day), paste it under Settings below and click <strong>Save settings</strong>.
     </div>
 
     <div class="tabs" role="tablist">
@@ -59,7 +59,7 @@
       <label for="s-key">CalcBloc API key</label>
       <p class="hint" id="s-key-state"></p>
       <input type="password" id="s-key" placeholder="cb_…" autocomplete="off" spellcheck="false" />
-      <p class="hint">Optional. Without a key the add-on works with the API's free allowance: 50 requests a day and 5 a minute per internet address. Google's servers share addresses, so that allowance can run out sooner; the add-on then asks for a key. A <a id="keys-link" href="https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&amp;utm_medium=app&amp;utm_campaign=itmarkerz-oss" target="_blank" rel="noopener">free API key</a> gives 5,000 requests a day and 60 a minute. The key is stored in your Google account's settings for this add-on and sent only to calcbloc.com.</p>
+      <p class="hint">Optional. Without a key the add-on works with the API's free daily and per-minute allowance per internet address (<a href="https://calcbloc.com/developers?utm_source=calcbloc-google-sheets&amp;utm_medium=app&amp;utm_campaign=itmarkerz-oss#limits" target="_blank" rel="noopener">current limits</a>). Google's servers share addresses, so that allowance can run out sooner; the add-on then asks for a key. A <a id="keys-link" href="https://calcbloc.com/developers/keys?utm_source=calcbloc-google-sheets&amp;utm_medium=app&amp;utm_campaign=itmarkerz-oss" target="_blank" rel="noopener">free API key</a> gives 5,000 requests a day and 60 a minute. The key is stored in your Google account's settings for this add-on and sent only to calcbloc.com.</p>
       <label class="check"><input type="checkbox" id="s-share" /> <span>Let formulas in this spreadsheet use my key, even when someone else owns the file (custom functions can only read the owner's settings).</span></label>
       <div class="row"><button id="s-remove">Remove key</button></div>
 
@@ -142,7 +142,7 @@
         var s = state.settings;
         $("s-key-state").textContent = s.hasKey
           ? "Key saved: " + s.keyHint + (s.keyShared ? " (shared with this spreadsheet's formulas)" : "")
-          : s.sharedKeyPresent ? "No personal key. Formulas in this spreadsheet use a key shared by a collaborator." : "No key saved: formulas use the free allowance without a key (50 requests a day).";
+          : s.sharedKeyPresent ? "No personal key. Formulas in this spreadsheet use a key shared by a collaborator." : "No key saved: formulas use the free allowance without a key.";
         $("s-share").checked = !!s.keyShared;
         $("s-remove").disabled = !s.hasKey;
         $("s-share").disabled = !s.hasKey && !$("s-key").value;

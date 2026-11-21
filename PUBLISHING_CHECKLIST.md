@@ -35,7 +35,7 @@ Steps to take the add-on from this repository to a public Marketplace listing. *
 
 - [x] Publish the privacy policy and terms pages on calcbloc.com (from PRIVACY.md and TERMS.md). Still check that the home page or footer links to them.
 - [ ] Record the demo video (see listing notes) and upload it to YouTube as unlisted.
-- [ ] Reviewer notes: say that the add-on works without a key (50 requests a day, shared across Google's servers) and asks for a free key when that runs out; include a test key for the review account for heavy testing (revoke it afterwards).
+- [ ] Reviewer notes: say that the add-on works without a key (300 requests a day and 20 a minute per internet address, shared across Google's servers) and asks for a free key when that runs out; include a test key for the review account for heavy testing (revoke it afterwards).
 - [ ] Submit for verification (brand + sensitive scopes). Answer follow-up emails from the Google Trust and Safety team.
 - [ ] Wait for approval before switching the listing to public (unverified apps show a warning and have a 100-user cap).
 

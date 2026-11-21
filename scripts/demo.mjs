@@ -3,7 +3,7 @@
 //
 //   npm run demo                         offline: recorded API responses and tables from test/fixtures
 //   npm run demo -- --live               real calls to https://calcbloc.com/api/v1 (about 8 requests). Works
-//                                        without a key (50 requests a day); set CALCBLOC_API_KEY to use a free key
+//                                        without a key (the API's free allowance); set CALCBLOC_API_KEY to use a free key
 //   npm run demo -- --html <folder>      also writes sheet.html and sidebar.html previews to <folder>
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -85,7 +85,7 @@ if (!live) {
       return `#ERROR! ${e.message}`;
     }
   };
-  console.log("Without a key, after the free allowance (50 a day, here cut to 2) is used up:");
+  console.log("Without a key, after the free daily allowance (here cut to 2) is used up:");
   console.log(`  =CALCBLOC_NET("uk", 40000)  -> ${cellOf(() => g2.CALCBLOC_NET("uk", 40000))}`);
   console.log(`  =CALCBLOC_NET("uk", 50000)  -> ${cellOf(() => g2.CALCBLOC_NET("uk", 50000))}\n`);
 }

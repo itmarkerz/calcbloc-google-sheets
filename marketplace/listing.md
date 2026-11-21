@@ -37,7 +37,7 @@ Draft text and assets for the Marketplace SDK **Store listing** and **App config
 > Take-home pay calculations for the United States (all states), United Kingdom, Canada, Australia, New Zealand, Ireland, India, Germany, Spain, the Netherlands, France and Singapore. Tax tables for these and for countries such as Norway, Sweden, Denmark, Austria, Switzerland, Poland, Italy and Portugal.
 >
 > **Free, no sign-up needed**
-> The add-on is free and works straight away without signing up, using the CalcBloc API's free allowance (50 requests a day per internet address). Google's servers are shared by many users, so that allowance can run out sooner; the add-on then asks you to add a free API key. Get one at calcbloc.com/developers/keys (sign up with your email address; the key is shown straight away) and paste it in Extensions > CalcBloc > Settings and API key for 5,000 requests a day. Results are cached so a sheet does not repeat requests.
+> The add-on is free and works straight away without signing up, using the CalcBloc API's free allowance (300 requests a day and 20 a minute per internet address, see calcbloc.com/developers#limits). Google's servers are shared by many users, so that allowance can run out sooner; the add-on then asks you to add a free API key. Get one at calcbloc.com/developers/keys (sign up with your email address; the key is shown straight away) and paste it in Extensions > CalcBloc > Settings and API key for 5,000 requests a day. Results are cached so a sheet does not repeat requests.
 >
 > **Privacy**
 > The add-on sends only the inputs of its own formulas (country, region, year, salary), and your API key if you saved one, to calcbloc.com. It does not read your other cells or files, and it has no ads or tracking.

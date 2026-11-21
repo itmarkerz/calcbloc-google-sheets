@@ -3,7 +3,7 @@
 //   /tax-tables/{country}/{year}    tables copied from the calcbloc-data repository (same JSON as the API)
 //   /net-salary, /employer-cost     recorded live responses where available (see RECORDED), otherwise a clearly
 //                                   marked synthetic response that uses the real result names for that country
-// It also applies the API's rate limits (50/day and 5/minute without a key; 5,000/day and 60/minute with one),
+// It also applies the API's rate limits (300/day and 20/minute without a key; 5,000/day and 60/minute with one),
 // its X-RateLimit-* and Retry-After headers and its error format, so the add-on's caching, pacing and messages
 // can be checked offline. `anonymousPerDay` lowers the no-key daily allowance for tests.
 import { execFileSync } from "node:child_process";
@@ -78,13 +78,13 @@ function tableFile(country, year, region) {
   return { file: `tables/${country}/${y}/${region}.json`, year: y };
 }
 
-export function createFakeApi({ keys = [], limits = true, clock = { now: () => Date.now() }, anonymousPerDay = 50 } = {}) {
+export function createFakeApi({ keys = [], limits = true, clock = { now: () => Date.now() }, anonymousPerDay = 300 } = {}) {
   const usage = new Map(); // tier -> { day, minuteStart, minuteCount }
   const stats = { requests: 0, noKey: 0, byPath: {} };
   const toMidnight = () => Math.max(1, Math.ceil((86400000 - (clock.now() % 86400000)) / 1000));
 
   function rate(tier) {
-    const lim = tier === "free" ? { day: 5000, minute: 60 } : { day: anonymousPerDay, minute: 5 };
+    const lim = tier === "free" ? { day: 5000, minute: 60 } : { day: anonymousPerDay, minute: 20 };
     const u = usage.get(tier) ?? { day: 0, minuteStart: clock.now(), minute: 0 };
     if (clock.now() - u.minuteStart >= 60000) Object.assign(u, { minuteStart: clock.now(), minute: 0 });
     usage.set(tier, u);

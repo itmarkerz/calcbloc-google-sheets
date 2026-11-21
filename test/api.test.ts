@@ -48,18 +48,18 @@ describe("API key", () => {
 describe("rate limits", () => {
   it("without a key, asks for a free API key only after the API answers 429", () => {
     env = setup({ limits: true });
-    const salaries = [[30001], [30002], [30003], [30004], [30005], [30006]];
+    const salaries = Array.from({ length: 21 }, (_, i) => [30001 + i]);
     const out = CALCBLOC_NET("uk", salaries) as string[][];
-    // 5 per minute without a key: /countries + 4 calculations succeed, the rest are asked for a key
-    expect(out.filter((r) => typeof r[0] === "number")).toHaveLength(4);
-    const msg = String(out[5][0]);
-    expect(msg).toMatch(/^Error: Add your free API key: the free requests without a key \(50 a day, 5 a minute, per internet address\) are used up\./);
+    // 20 per minute without a key: /countries + 19 calculations succeed, the rest are asked for a key
+    expect(out.filter((r) => typeof r[0] === "number")).toHaveLength(19);
+    const msg = String(out[20][0]);
+    expect(msg).toMatch(/^Error: Add your free API key: the free per-minute allowance without a key is used up for this minute\./);
     expect(msg).toContain(KEYS_LINK);
     expect(msg).toContain("Extensions > CalcBloc > Settings and API key");
     expect(msg).toMatch(/Google's servers share internet addresses/);
     expect(msg).toMatch(/5,000 requests a day/);
     // results that came back before the limit carry no prompt
-    expect(out.slice(0, 4).every((r) => typeof r[0] === "number")).toBe(true);
+    expect(out.slice(0, 19).every((r) => typeof r[0] === "number")).toBe(true);
   });
 
   it("without a key, X-RateLimit-Remaining: 0 holds further keyless calls with the prompt (no request)", () => {
@@ -68,6 +68,8 @@ describe("rate limits", () => {
     expect(typeof CALCBLOC_NET("uk", 30002)).toBe("number"); // the last free request: Remaining 0
     const n = requests(env.api);
     expect(() => CALCBLOC_NET("uk", 30003)).toThrow(new RegExp(`^Add your free API key.*${esc(KEYS_LINK)}`));
+    // the daily figure comes from the API's X-RateLimit-Limit header, not from the add-on
+    expect(() => CALCBLOC_NET("uk", 30003)).toThrow(/^Add your free API key: the free daily allowance without a key \(3 requests a day\) is used up\./);
     expect(requests(env.api)).toBe(n);
     // adding a key lifts the hold at once
     env.gas.userProps.setProperty(PROP_API_KEY, TEST_KEY);
@@ -87,14 +89,17 @@ describe("rate limits", () => {
   });
 
   it("formats the key prompt with the wait time", () => {
-    expect(addKeyMessage(30)).toMatch(/are used up\. Try again in about 1 min\. Google's/);
-    expect(addKeyMessage(8 * 3600)).toMatch(/Try again in about 8 hours\./);
+    expect(addKeyMessage(30)).toMatch(/is used up for this minute\. Try again in about 1 min\. Google's/);
+    expect(addKeyMessage(8 * 3600)).toMatch(/daily allowance without a key is used up\. Try again in about 8 hours\./);
+    expect(addKeyMessage(8 * 3600, 300)).toMatch(/daily allowance without a key \(300 requests a day\) is used up\./);
     expect(addKeyMessage()).toContain(KEYS_LINK);
+    expect(addKeyMessage()).toMatch(/free key \(email only, 5,000 requests a day\)/);
+    expect(addKeyMessage()).not.toMatch(/without a key \(/);
   });
 
   it("holds a rate-limit error for at most a minute (no retry storm), then the cell fills in", () => {
     env = setup({ limits: true });
-    for (let i = 0; i < 4; i++) CALCBLOC_NET("uk", 50000 + i);
+    for (let i = 0; i < 19; i++) CALCBLOC_NET("uk", 50000 + i);
     expect(() => CALCBLOC_NET("uk", 60000)).toThrow(/Add your free API key.*Try again in about 1 min/);
     const n = requests(env.api);
     expect(() => CALCBLOC_NET("uk", 60000)).toThrow(/Add your free API key/);
