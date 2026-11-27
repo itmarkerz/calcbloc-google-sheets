@@ -12,6 +12,8 @@ CalcBloc is a product of [itmarkerz technologies](https://itmarkerz.co.in/?utm_s
 =CALCBLOC_NET("us", 60000, "ca")                          ->  47,806.56   take-home pay, California, 2026
 =CALCBLOC_TAX("us", 60000, "ca")                          ->   6,823.44   federal + state income tax
 =CALCBLOC_EMPLOYER_COST("uk", 40000)                      ->  46,262.20   salary + employer NI + pension
+=CALCBLOC_BONUS_WITHHOLDING("us", 150000, 20000, , "ca")    ->   8,236.00   withheld on a $20,000 bonus in California
+=CALCBLOC_IMPORT_DUTY("gb", "in", "0901210000", 1000, , "proof_of_origin=true") -> 0   coffee from India under the CETA
 =CALCBLOC_RATE("norway", "general-income", "Individuals") ->       22%
 =CALCBLOC_BAND_TAX("austria", 40000)                      ->   7,447.20   tax from the 2026 bands
 ```
@@ -25,6 +27,8 @@ Every function is documented in the formula helper as you type. Rates come back 
 | `=CALCBLOC_NET(country, gross, [region], [year], [options])` | Estimated annual take-home pay |
 | `=CALCBLOC_TAX(country, gross, [region], [year], [options])` | Estimated annual income tax (social security not included) |
 | `=CALCBLOC_EMPLOYER_COST(country, salary, [region], [year], [options])` | Salary plus employer social security, payroll taxes, pension and other on-costs |
+| `=CALCBLOC_BONUS_WITHHOLDING(country, salary, amount, [type], [region], [options])` | Tax withheld on a bonus, commission, RSU vest or lump sum, with the official method (`result=totalLiability` for the final tax it adds) |
+| `=CALCBLOC_IMPORT_DUTY(destination, origin, code, customs_value, [result], [options])` | Duties and taxes on one import into the UK, an EU country, the US or India (an estimate, not a customs ruling; an incomplete total is an error) |
 | `=CALCBLOC_RATE(country, section, label, [year], [region])` | One rate, threshold or amount from the tax tables |
 | `=CALCBLOC_BAND_TAX(country, taxable_income, [section], [year], [region])` | Tax on a taxable amount from an official band schedule |
 | `=CALCBLOC_COUNTRIES()` | Every country with its currency, current tax year, what can be calculated and its tax-table page |

@@ -31,7 +31,7 @@ describe("manifest (appsscript.json)", () => {
 describe("custom functions in Code.js", () => {
   it("declares each function as a plain global with JSDoc help, @customfunction and the data credit", () => {
     const fns = customFunctions();
-    expect(fns.map((f) => f.name).sort()).toEqual(["CALCBLOC_BAND_TAX", "CALCBLOC_COUNTRIES", "CALCBLOC_EMPLOYER_COST", "CALCBLOC_NET", "CALCBLOC_RATE", "CALCBLOC_TAX"]);
+    expect(fns.map((f) => f.name).sort()).toEqual(["CALCBLOC_BAND_TAX", "CALCBLOC_BONUS_WITHHOLDING", "CALCBLOC_COUNTRIES", "CALCBLOC_EMPLOYER_COST", "CALCBLOC_IMPORT_DUTY", "CALCBLOC_NET", "CALCBLOC_RATE", "CALCBLOC_TAX"]);
     for (const f of fns) {
       expect(f.doc, f.name).toContain("Data by CalcBloc (calcbloc.com/data)");
       expect(f.doc, f.name).toMatch(/@return/);

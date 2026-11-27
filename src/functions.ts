@@ -1,4 +1,4 @@
-import { getMany, type ApiRequest } from "./api";
+import { getJson, getMany, type ApiRequest } from "./api";
 import { getCountries, resolveCountry, resolveRegion, type Country } from "./countries";
 import { bandTax, defaultBandSection, findRow, findSection, getTable, isBandSection, resolveYear, rowValue, sectionRows, tableName } from "./tables";
 import { CalcBlocError, first, is2D, isBlank, normalize, parseOptions, round2, text, toAmount } from "./util";
@@ -225,4 +225,65 @@ export function CALCBLOC_COUNTRIES(): Cell[][] {
 
 function resolveCountryList(): Country[] {
   return [...getCountries()].sort((a, b) => (normalize(a.name) < normalize(b.name) ? -1 : 1));
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// API 1.8 and 1.9: bonus withholding and import duty (one cell each).
+
+interface SupplementalResponse {
+  summary: { amount: number; totalWithheld: number; totalLiability: number; difference: number; netPayment: number };
+}
+
+const SUPPLEMENTAL_RESULTS = ["totalWithheld", "totalLiability", "difference", "netPayment"] as const;
+
+/** Tax withheld on a bonus or other supplemental payment (GET /supplemental-withholding). result picks another summary figure. */
+export function CALCBLOC_BONUS_WITHHOLDING(country: unknown, salary: unknown, amount: unknown, type?: unknown, region?: unknown, options?: unknown): Cell {
+  const c = resolveCountry(first(country));
+  const s = toAmount(first(salary));
+  const a = toAmount(first(amount));
+  if (s === null || s < 0) throw new CalcBlocError(`Salary must be a number of 0 or more; got "${text(first(salary)).slice(0, 30)}".`, "bad_salary");
+  if (a === null || a < 0) throw new CalcBlocError(`Amount must be a number of 0 or more; got "${text(first(amount)).slice(0, 30)}".`, "bad_amount");
+  const opts = parseOptions(first(options));
+  const result = opts.result ?? "totalWithheld";
+  delete opts.result;
+  const key = SUPPLEMENTAL_RESULTS.find((k) => k.toLowerCase() === result.toLowerCase());
+  if (!key) throw new CalcBlocError(`No result "${result}". Available: ${SUPPLEMENTAL_RESULTS.join(", ")}.`, "unknown_result");
+  const t = text(first(type)).toLowerCase();
+  const r = resolveRegion(c, first(region), "supplemental-withholding");
+  const d = getJson<SupplementalResponse>(
+    { path: "/supplemental-withholding", params: { country: c.code, salary: s, amount: a, ...(t ? { type: t } : {}), ...(r ? { region: r } : {}), ...opts } },
+    "document",
+  );
+  return round2(d.summary[key]);
+}
+
+interface ImportDutyResponse {
+  totals: { customs_duty: number; extra_duties: number; excise: number; import_vat: number; duties_and_taxes: number; landed_cost: number; currency: string; complete: boolean; incomplete_reasons: string[] };
+}
+
+const DUTY_RESULTS = ["duties_and_taxes", "customs_duty", "extra_duties", "excise", "import_vat", "landed_cost"] as const;
+
+/**
+ * Duties and taxes on one import (GET /import-duty): UK, EU member states, US, India. When the API marks the totals
+ * incomplete (an excise code or exporter-specific duty is missing), the cell shows an error with the reason instead
+ * of a number that would understate the cost.
+ */
+export function CALCBLOC_IMPORT_DUTY(destination: unknown, origin: unknown, code: unknown, customsValue: unknown, result?: unknown, options?: unknown): Cell {
+  const dest = text(first(destination)).toLowerCase();
+  const orig = text(first(origin)).toLowerCase();
+  const hs = text(first(code)).replace(/[\s.]/g, "");
+  const v = toAmount(first(customsValue));
+  if (!dest) throw new CalcBlocError('Destination is required, for example "gb", "de" or "us".', "missing_destination");
+  if (!orig) throw new CalcBlocError('Origin is required, for example "cn" or "in".', "missing_origin");
+  if (!/^\d{4,10}$/.test(hs)) throw new CalcBlocError(`Code must be a commodity code of 4 to 10 digits; got "${text(first(code)).slice(0, 20)}".`, "bad_code");
+  if (v === null || v <= 0) throw new CalcBlocError("Customs value must be a number above 0.", "bad_amount");
+  const want = (text(first(result)) || "duties_and_taxes").toLowerCase();
+  const key = DUTY_RESULTS.find((k) => k === want);
+  if (!key) throw new CalcBlocError(`No result "${want}". Available: ${DUTY_RESULTS.join(", ")}.`, "unknown_result");
+  const opts = parseOptions(first(options));
+  const d = getJson<ImportDutyResponse>({ path: "/import-duty", params: { destination: dest, origin: orig, code: hs, customs_value: v, ...opts } }, "document");
+  if (!d.totals.complete && key !== "customs_duty") {
+    throw new CalcBlocError(`The total is incomplete: ${d.totals.incomplete_reasons.join("; ") || "see calcbloc.com/developers"}.`, "incomplete");
+  }
+  return round2(d.totals[key]);
 }

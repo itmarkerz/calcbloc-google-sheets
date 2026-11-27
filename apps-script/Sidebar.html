@@ -80,6 +80,10 @@
         <dd>Annual income tax (no social security). <code>=CALCBLOC_TAX("canada", 85000, "on")</code></dd>
         <dt><code>=CALCBLOC_EMPLOYER_COST(country, salary, [region], [year], [options])</code></dt>
         <dd>Salary plus employer on-costs. <code>=CALCBLOC_EMPLOYER_COST("uk", 40000)</code></dd>
+        <dt><code>=CALCBLOC_BONUS_WITHHOLDING(country, salary, amount, [type], [region], [options])</code></dt>
+        <dd>Tax withheld on a bonus or other extra pay. <code>=CALCBLOC_BONUS_WITHHOLDING("us", 150000, 20000, , "ca")</code></dd>
+        <dt><code>=CALCBLOC_IMPORT_DUTY(destination, origin, code, customs_value, [result], [options])</code></dt>
+        <dd>Duties and taxes on one import (UK, EU, US, India). <code>=CALCBLOC_IMPORT_DUTY("gb", "in", "0901210000", 1000, , "proof_of_origin=true")</code></dd>
         <dt><code>=CALCBLOC_RATE(country, section, label, [year], [region])</code></dt>
         <dd>One figure from the tax tables. <code>=CALCBLOC_RATE("norway", "general-income", "Individuals")</code></dd>
         <dt><code>=CALCBLOC_BAND_TAX(country, taxable_income, [section], [year], [region])</code></dt>

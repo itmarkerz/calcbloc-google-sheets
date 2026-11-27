@@ -144,6 +144,19 @@ export function createFakeApi({ keys = [], limits = true, clock = { now: () => D
       const calculatorUrl = meta.endpoints[endpoint].calculatorUrl;
       return json(200, { endpoint, country: meta.code, countryName: meta.name, year: meta.current_year, requested_year: q.year ?? "latest", currency: meta.currency, inputs: q, ...synthetic(endpoint, meta.code, salary, q.region), calculatorUrl, warnings: [], attribution: attribution(new URL(calculatorUrl).pathname) }, rh);
     }
+    // API 1.8 / 1.9: recorded live responses (2026-11-27), keyed by the exact query.
+    const RECORDED_19 = {
+      "/supplemental-withholding?country=us&salary=150000&amount=20000&region=ca": "api/supplemental-withholding_us_150000_20000_ca.json",
+      "/import-duty?destination=gb&origin=in&code=0901210000&customs_value=1000&proof_of_origin=true": "api/import-duty_gb_in_0901210000_1000_poo.json",
+      "/import-duty?destination=gb&origin=de&code=2203000100&customs_value=500&quantity=100&unit=l": "api/import-duty_gb_de_2203000100_500.json",
+    };
+    if (path === "/supplemental-withholding" || path === "/import-duty") {
+      const sorted = new URLSearchParams([...u.searchParams].sort(([a], [b]) => a.localeCompare(b))).toString();
+      const norm = (k) => { const [p, q] = k.split("?"); return `${p}?${new URLSearchParams([...new URLSearchParams(q)].sort(([a], [b]) => a.localeCompare(b))).toString()}`; };
+      const rec = Object.entries(RECORDED_19).find(([k]) => norm(k) === `${path}?${sorted}`)?.[1];
+      if (rec) return json(200, read(rec), rh);
+      return error(503, "service_unavailable", `No recorded response for ${path}?${u.searchParams.toString()}`);
+    }
     return error(404, "not_found", "No such endpoint. See the documentation for the list.");
   }
   return { handler, stats, usage };

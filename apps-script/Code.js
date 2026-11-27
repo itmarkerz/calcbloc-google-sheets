@@ -59,6 +59,42 @@ function CALCBLOC_EMPLOYER_COST(country, salary, region, year, options) {
 }
 
 /**
+ * Tax withheld on a bonus, commission, RSU vest, option exercise or lump sum paid on top of a salary, using the
+ * country's official withholding method (CalcBloc API /supplemental-withholding).
+ * Data by CalcBloc (calcbloc.com/data).
+ *
+ * @param {string} country Country code or name, for example "us", "uk", "ca".
+ * @param {number} salary Regular gross annual salary in the country's currency.
+ * @param {number} amount The bonus or other payment (gross).
+ * @param {string} type Optional. "bonus" (default), "commission", "rsu_vest", "option_exercise" or "lump_sum".
+ * @param {string} region Optional. State or province, required for the US and Canada, for example "ca" or "on".
+ * @param {string} options Optional. "result=totalLiability" (or totalWithheld, difference, netPayment) and other inputs as "name=value; name=value".
+ * @return The tax withheld on the payment.
+ * @customfunction
+ */
+function CALCBLOC_BONUS_WITHHOLDING(country, salary, amount, type, region, options) {
+  return CalcBlocLib.CALCBLOC_BONUS_WITHHOLDING(country, salary, amount, type, region, options);
+}
+
+/**
+ * Duties and taxes on one import into the UK, an EU member state, the US or India, from the official tariff
+ * (CalcBloc API /import-duty). An estimate, not a customs ruling. Shows an error when the total is incomplete.
+ * Data by CalcBloc (calcbloc.com/data).
+ *
+ * @param {string} destination Importing country, for example "gb", "de", "us" or "in".
+ * @param {string} origin Country of origin, for example "cn" or "in".
+ * @param {string} code Commodity code, 10 digits (8 for India), for example "0901210000".
+ * @param {number} customs_value Customs value in the tariff's currency.
+ * @param {string} result Optional. "duties_and_taxes" (default), "customs_duty", "extra_duties", "excise", "import_vat" or "landed_cost".
+ * @param {string} options Optional. More inputs as "name=value; name=value", for example "proof_of_origin=true; quantity=100; unit=l".
+ * @return The amount in the tariff's currency.
+ * @customfunction
+ */
+function CALCBLOC_IMPORT_DUTY(destination, origin, code, customs_value, result, options) {
+  return CalcBlocLib.CALCBLOC_IMPORT_DUTY(destination, origin, code, customs_value, result, options);
+}
+
+/**
  * One rate, threshold or amount from the official tax tables, with its source listed on calcbloc.com. Rates come
  * back as decimals (format the cell as a percentage).
  * Data by CalcBloc (calcbloc.com/data).
