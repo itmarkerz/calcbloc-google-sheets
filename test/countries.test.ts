@@ -12,11 +12,11 @@ beforeEach(() => {
 });
 
 describe("country codes table", () => {
-  it("covers all 134 country keys (133 released + Belgium, held), each with a distinct lower-case short code and upper-case ISO code", () => {
+  it("covers all 218 country keys (217 released + Belgium, held), each with a distinct lower-case short code and upper-case ISO code", () => {
     const entries = Object.entries(COUNTRY_CODES);
-    expect(entries).toHaveLength(134);
+    expect(entries).toHaveLength(218);
     const shorts = entries.map(([, v]) => v.short);
-    expect(new Set(shorts).size).toBe(134);
+    expect(new Set(shorts).size).toBe(218);
     for (const [, v] of entries) {
       expect(v.short).toMatch(/^[a-z]{2}$/);
       expect(v.iso).toMatch(/^[A-Z]{2}$/);

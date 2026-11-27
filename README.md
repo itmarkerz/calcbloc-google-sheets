@@ -48,6 +48,8 @@ Every function is documented in the formula helper as you type. Rates come back 
 =CALCBLOC_NET("uk", 40000, , , "result=netMonthly")
 =CALCBLOC_TAX("ireland", 55000)
 =CALCBLOC_EMPLOYER_COST("australia", 90000, "nsw")
+=CALCBLOC_NET("dk", 600000, , , "municipality=101; church=true")
+=CALCBLOC_EMPLOYER_COST("pl", 120000, , , "accident_rate_pct=2.5")
 =CALCBLOC_RATE("uk", "personal-allowance", "Personal Allowance")          -> 12570
 =CALCBLOC_RATE("uk", "income-tax-scotland", "Starter rate", , "scotland")  -> 19%
 =CALCBLOC_RATE("austria", "income-tax", "#2")                             -> 20%  (second band)
@@ -76,10 +78,15 @@ Income tax as computed by the country's take-home calculator on calcbloc.com:
 | Netherlands | Wage tax (loonheffing), which includes national insurance contributions |
 | France | Income tax withheld at source |
 | Singapore | Income tax for the year of assessment |
+| Denmark | Municipal tax, church tax (members only) and the state bottom, middle, top and top-top taxes (AM contribution and ATP not included) |
+| Estonia | Income tax after the basic exemption (unemployment insurance and the II pillar funded pension not included) |
+| Poland | PIT on the tax scale, with the solidarity levy where it applies (social insurance and the health contribution not included) |
+
+Denmark, Estonia and Poland (CalcBloc API 1.10) come from CalcBloc's shared take-home engine. Their options are `municipality` (kommune number, or `average`), `church` and `atp_hours` for Denmark; `funded_pension` (`0` = 2%, `1` = 4%, `2` = 6%, `none`) and `pension_age` for Estonia; `accident_rate_pct` and `commuter` for Poland. The Estonian and Polish calculations are checked against official worked examples; the Danish one is worked by hand from the law, as no official example is published (the API's `verification` field).
 
 ### Countries with tax tables only
 
-About two-thirds of the countries (for example Norway, Austria, Poland and Switzerland) have tax tables on CalcBloc but no take-home calculator yet. For them `CALCBLOC_NET`, `CALCBLOC_TAX` and `CALCBLOC_EMPLOYER_COST` return a clear message with a link to the tables instead of a guess. `CALCBLOC_RATE`, `CALCBLOC_BAND_TAX` and **Insert tax table** work for every country.
+Most countries (202 of the 217, for example Norway, Austria and Switzerland) have tax tables on CalcBloc but no take-home calculator yet. For them `CALCBLOC_NET`, `CALCBLOC_TAX` and `CALCBLOC_EMPLOYER_COST` return a clear message with a link to the tables instead of a guess. `CALCBLOC_RATE`, `CALCBLOC_BAND_TAX` and **Insert tax table** work for every country.
 
 `CALCBLOC_BAND_TAX` applies each band's rate to the part of the amount inside that band. It does not apply allowances, credits, surcharges or special rules, which differ by country and are described in the section notes (for example Poland's PLN 3,600 tax-reducing amount, or the Swiss federal rule above CHF 794,000). Use it on taxable income, not gross salary.
 

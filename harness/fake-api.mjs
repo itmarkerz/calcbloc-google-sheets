@@ -1,5 +1,5 @@
 // A local stand-in for https://calcbloc.com/api/v1, answering from test/fixtures:
-//   /countries                      recorded live response (2026-11-11)
+//   /countries                      API 1.10.0 response (217 countries), from the site's own handler before the release (2026-11-27)
 //   /tax-tables/{country}/{year}    tables copied from the calcbloc-data repository (same JSON as the API)
 //   /net-salary, /employer-cost     recorded live responses where available (see RECORDED), otherwise a clearly
 //                                   marked synthetic response that uses the real result names for that country
@@ -18,6 +18,12 @@ const countries = read("api/countries.json");
 const RECORDED = {
   "net-salary|us|60000|ca": "api/net-salary_us_60000_ca.json",
   "employer-cost|uk|40000|": "api/employer-cost_uk_40000.json",
+  // API 1.10 (Denmark, Estonia and Poland from the shared engine), from the site's own handler before the release.
+  "net-salary|denmark|600000|": "api/net-salary_dk_600000.json",
+  "net-salary|estonia|30000|": "api/net-salary_ee_30000.json",
+  "net-salary|poland|120000|": "api/net-salary_pl_120000.json",
+  "employer-cost|denmark|600000|": "api/employer-cost_dk_600000.json",
+  "employer-cost|poland|120000|": "api/employer-cost_pl_120000.json",
 };
 
 const attribution = (path = "/developers") => ({ source: "CalcBloc", url: `https://calcbloc.com${path}`, required: true, text: "Data by CalcBloc (calcbloc.com)" });

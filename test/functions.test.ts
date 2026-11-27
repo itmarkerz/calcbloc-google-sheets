@@ -143,7 +143,7 @@ describe("CALCBLOC_COUNTRIES", () => {
   it("lists every country from the API, not a hard-coded list", () => {
     const rows = CALCBLOC_COUNTRIES() as string[][];
     expect(rows[0]).toEqual(["Code", "Country", "Currency", "Current tax year", "Take-home pay", "Employer cost", "Tax tables"]);
-    expect(rows.length - 1).toBe(24);
+    expect(rows.length - 1).toBe(217);
     expect(rows.find((r) => r[0] === "norway")).toEqual(["norway", "Norway", "NOK", "2026", "no", "no", "https://calcbloc.com/norway/tax-tables/2026"]);
     expect(requests(env.api, "countries")).toBe(1);
     CALCBLOC_COUNTRIES();

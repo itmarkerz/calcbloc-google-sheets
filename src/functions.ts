@@ -11,6 +11,11 @@ export interface CalcResponse {
   summary: Record<string, number | null>;
   results: Record<string, number>;
   breakdown: { title: string; columns: string[]; rows: { label: string; values: number[] }[] } | null;
+  /**
+   * API 1.10+: "official-example" (checked against an official worked example), "law-text" (worked by hand from the
+   * law) or null (countries with their own engine).
+   */
+  verification?: "official-example" | "law-text" | null;
   calculatorUrl: string;
 }
 
@@ -35,6 +40,9 @@ export const INCOME_TAX_PARTS: Record<string, { keys?: string[]; breakdown?: Reg
   netherlands: { keys: ["tax"], includes: "Wage tax (loonheffing), which in the Netherlands includes national insurance contributions." },
   france: { keys: ["incomeTax"], includes: "Income tax withheld at source (prélèvement à la source)." },
   singapore: { keys: ["tax"], includes: "Income tax for the year of assessment." },
+  denmark: { keys: ["incomeTax"], includes: "Municipal tax, church tax (members only) and the state bottom, middle, top and top-top taxes (AM contribution and ATP not included)." },
+  estonia: { keys: ["incomeTax"], includes: "Income tax after the basic exemption (unemployment insurance and the II pillar funded pension not included)." },
+  poland: { keys: ["incomeTax"], includes: "PIT on the tax scale, with the solidarity levy where it applies (social insurance and the health contribution not included)." },
 };
 
 export function incomeTaxOf(country: string, data: CalcResponse): number {

@@ -87,7 +87,7 @@ describe("menu and sidebar", () => {
     env.gas.userProps.setProperty("calcbloc.apiKey", TEST_KEY);
     const res = gs.sidebarInit();
     expect(res.ok).toBe(true);
-    expect(res.data.countries.length).toBe(24);
+    expect(res.data.countries.length).toBe(217);
     expect(res.data.countries.find((c: { code: string }) => c.code === "uk").years).toEqual(["2026-27", "2025-26"]);
     expect(JSON.stringify(res)).not.toContain(TEST_KEY);
     expect(res.data.settings.keyHint).toBe("cb_…O5p6");
@@ -99,7 +99,7 @@ describe("menu and sidebar", () => {
     const first = gs.sidebarInit(); // the one free request
     expect(first.ok).toBe(true);
     expect(first.data.needsKey).toBe(false);
-    expect(first.data.countries.length).toBe(24);
+    expect(first.data.countries.length).toBe(217);
     expect(env.gas.fetch.apiKeysSent()).toEqual([null]);
     // Remaining was 0: the table insert is held with the prompt, without a request
     const insert = gs.sidebarInsertTable({ country: "uk", year: "2026-27", region: "" });
